@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 13:19:29 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/19 18:56:06 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/06/19 18:58:58 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,9 @@ uint8_t  get_opts_args_handler(t_core *core, int argc, char **argv)
 
     ft_memset(&opts_conf, 0, sizeof(t_opts_conf));
     opts_conf.allowed_opt = ALLOWED_OPT;
+    opts_conf.allowed_opt = ALLOWED_OPT_ARG;
+    opts_conf.allowed_opt_tab = ALLOWED_OPT_TAB;
+    opts_conf.allowed_opt_tab_arg = ALLOWED_OPT_TAB_ARG;
     if (argc < 2)
     {
         return (FAILURE);
