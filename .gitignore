@@ -12,7 +12,7 @@
 **/*.pch
 
 # Libraries
-libft/*.a
+shared_libft_ft_traceroute/*.a
 **/*.a
 
 # Executables
