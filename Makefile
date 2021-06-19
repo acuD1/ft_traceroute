@@ -45,7 +45,7 @@ F_C					=	\033[35;5;108m
 # Programms names
 
 NAME				=	ft_traceroute
-LNAME				=	shared_libft_ft_traceroute.a
+LNAME				=	libft.a
 
 # Build information that can be added the predefines buffer at compilation
 
@@ -93,7 +93,7 @@ SRC					+= $(S_PATH)main.c
 
 # Headers
 
-HDR					+=	shared_libft_ft_traceroute.h
+HDR					+=	libft.h
 
 # std
 
