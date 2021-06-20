@@ -90,10 +90,16 @@ PATHS				+=	$(O_PATH)
 # Files
 
 SRC					+= $(S_PATH)main.c
+SRC					+= $(S_PATH)memory.c
+SRC					+= $(S_PATH)errors.c
+SRC					+= $(S_PATH)display.c
+SRC					+= $(S_PATH)opts_args.c
+
 
 # Headers
 
 HDR					+=	libft.h
+HDR					+=	ft_traceroute.h
 
 # std
 
