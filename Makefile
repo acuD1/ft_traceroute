@@ -94,6 +94,9 @@ SRC					+= $(S_PATH)memory.c
 SRC					+= $(S_PATH)errors.c
 SRC					+= $(S_PATH)display.c
 SRC					+= $(S_PATH)opts_args.c
+SRC					+= $(S_PATH)init.c
+
+SRC					+= $(S_PATH)dev.c
 
 
 # Headers

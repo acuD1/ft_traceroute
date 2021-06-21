@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 14:57:34 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/20 14:57:54 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/06/20 15:45:08 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ uint8_t  get_opts_args_handler(t_core *core, int argc, char **argv)
     if (args_len > 2)
     {
         t_list   *arg = get_arg(&core->opts_args->args, 3);
-        fprintf(stderr, "Extra arg `%s' (position 3, argc %d)\n", ((t_args_db *)arg->content)->arg, ((t_args_db *)arg->content)->argc);
+        dprintf(STDERR_FILENO, "Extra arg `%s' (position 3, argc %d)\n", ((t_args_db *)arg->content)->arg, ((t_args_db *)arg->content)->argc);
         exit_routine(core, FAILURE);
     }
     if (args_len > 1)
@@ -49,7 +49,7 @@ uint8_t  get_opts_args_handler(t_core *core, int argc, char **argv)
         t_list   *arg = get_arg(&core->opts_args->args, 2);
         if (ft_is_number(((t_args_db *)arg->content)->arg) != TRUE)
         {
-            fprintf(stderr, "Cannot handle \"packetlen\" cmdline arg `%s' on position 2 (argc %d)\n", ((t_args_db *)arg->content)->arg,  ((t_args_db *)arg->content)->argc);
+            dprintf(STDERR_FILENO, "Cannot handle \"packetlen\" cmdline arg `%s' on position 2 (argc %d)\n", ((t_args_db *)arg->content)->arg,  ((t_args_db *)arg->content)->argc);
             exit_routine(core, FAILURE);
         }
         else

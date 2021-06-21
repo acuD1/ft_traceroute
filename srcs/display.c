@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 14:55:15 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/20 14:55:27 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/06/20 15:48:54 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,17 @@
 void     print_unallowed_opt(t_opts_args *opts_args)
 {
     if (opts_args->invalid)
-        fprintf(stderr,
+        dprintf(STDERR_FILENO,
             "Bad option `--%s' (argc %d)\n", opts_args->invalid, opts_args->argc);
     else
-        fprintf(stderr,
+        dprintf(STDERR_FILENO,
             "Bad option `-%c' (argc %d)\n", (char)(opts_args->all % 128), opts_args->argc);
 }
 
 /* Build informations */
 void     print_version(void)
 {
-    fprintf(stdout, "ft_traceroute: v.%s-%s-%s-%s\n",
+    dprintf(STDOUT_FILENO, "ft_traceroute: v.%s-%s-%s-%s\n",
         BUILD_VERSION_STRING,
         BUILD_RELEASE_STRING,
         BUILD_PATCH_STRING,
@@ -34,5 +34,5 @@ void     print_version(void)
 
 void     print_usage(void)
 {
-    fprintf(stderr, "Usage: ft_traceroute [-h] [--help] <destination>\n");
+    dprintf(STDERR_FILENO, "Usage: ft_traceroute [-h] [--help] <destination>\n");
 }
