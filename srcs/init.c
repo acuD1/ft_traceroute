@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 14:57:08 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/21 11:25:31 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/06/21 17:57:48 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ uint8_t     init_core(t_core *core)
     /* Preparing getaddrinfo struct */
     hints.ai_flags      = AI_V4MAPPED | AI_ADDRCONFIG;
     hints.ai_family     = AF_INET;
-    hints.ai_protocol   = IPPROTO_UDP;
+    hints.ai_socktype   = 0;
 
     if ((status = (int8_t)getaddrinfo(((t_args_db *)get_arg(&core->opts_args->args, 1)->content)->arg, NULL, &hints, &res)) != SUCCESS)
         getaddrinfo_error_handler(core, status);

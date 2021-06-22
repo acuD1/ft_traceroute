@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 13:19:29 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/21 14:08:53 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/06/22 09:59:45 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,66 +31,36 @@ uint16_t    checksum(size_t len, void *icmp_packet)
 
 void    exec_ft_traceroute(t_core *core)
 {
-    t_udp_packet_v4 *packet         = NULL;
-    size_t          udp_area_size   = core->packetlen - IPHDR_SIZE - UDPHDR_SIZE;
+    size_t  payload_size = core->packetlen - IPHDR_SIZE - UDPHDR_SIZE;
+    char    payload[payload_size];
 
     dprintf(STDOUT_FILENO, "ft_traceroute to %s, %d hops max, %d byte packets\n", core->target, core->hops, core->packetlen);
 
-
-    if (!(packet = ft_memalloc(core->packetlen)))
-        exit_routine(core, FAILURE);
-
-    /* IP Header */
-    packet->iphdr.version           = 4;
-    packet->iphdr.ihl               = IPHDR_SIZE / 4;
-    packet->iphdr.tos               = 0;
-    packet->iphdr.tot_len           = htons(core->packetlen);
-    packet->iphdr.id                = 0;
-    packet->iphdr.frag_off          = htons(0);
-    packet->iphdr.ttl               = 1;
-    packet->iphdr.protocol          = IPPROTO_UDP;
-    packet->iphdr.check             = 0;
-    packet->iphdr.saddr             = INADDR_ANY;
-    packet->iphdr.daddr             = ((struct sockaddr_in *)&core->target_addr)->sin_addr.s_addr;
-
-
-    /* UDP Header */
-
-    packet->udp_area.udphdr.source   = htons(core->src_port);
-    packet->udp_area.udphdr.dest     = htons(core->dst_port);
-    packet->udp_area.udphdr.len      = htons(UDPHDR_SIZE + udp_area_size);
-    packet->udp_area.udphdr.check    = 0;
-
     /* Payload */
 
-    for (size_t i = 1; i < udp_area_size; i++)
-        packet->udp_area.payload[i] = 0x42;
+    for (size_t i = 0; i < payload_size; i++)
+        payload[i] = 0x42;
 
-    /* Checksums */
-
-    packet->udp_area.udphdr.check   = checksum(udp_area_size, &packet->udp_area);
-    packet->iphdr.check             = checksum(core->packetlen, packet);
-
-    print_bytes(core->packetlen, packet);
+    print_bytes(payload_size, &payload);
 
 
     int sockfd = 0;
-    if ((sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP)) == -1)
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
     {
         printf("socket(): ERROR: %s , errno %d\n", strerror(errno), errno);
         exit_routine(core, FAILURE);
     }
 
-    int un = 1;
-    if (setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &un, sizeof(un)) != SUCCESS)
+    int ttl = 7;
+    if ((setsockopt(sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(int))) != SUCCESS)
     {
         printf("setsockopt(): ERROR: %s , errno %d\n", strerror(errno), errno);
         exit_routine(core, FAILURE);
     }
 
     ssize_t bytes_sent = 0;
-    bytes_sent = sendto(sockfd, packet,
-                    core->packetlen, 0,
+    bytes_sent = sendto(sockfd, payload,
+                    payload_size, 0,
                     ( struct sockaddr_in *)&core->target_addr,
                     sizeof(core->target_addr));
     printf("%zd\n", bytes_sent);
