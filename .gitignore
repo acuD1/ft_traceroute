@@ -3,7 +3,7 @@
 
 **/ft_traceroute
 **/build/*
-*.build
+#*.build
 
 # Dir
 
