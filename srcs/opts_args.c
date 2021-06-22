@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 14:57:34 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/22 17:40:31 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/06/22 19:09:44 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ uint8_t  get_opts_args_handler(t_core *core, int argc, char **argv)
     //     exit_routine(core, SUCCESS);
     // }
     debug_opts_args(core->opts_args);
-    get_opt_set_db(&core->opts_args->opt_set, NULL);
+    get_opt_set_db(core->opts_args->opt_set, NULL);
     exit_routine(core, FAILURE);
 
     // if (core->opts_args->all & M_OPT)// || (tmp_opt = get_opt_set_db(&core->opts_args->opt_set, M_OPT_ARRAY)))
