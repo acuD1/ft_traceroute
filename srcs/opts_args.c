@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 14:57:34 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/22 19:09:44 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/06/22 19:26:45 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 uint8_t  get_opts_args_handler(t_core *core, int argc, char **argv)
 {
     t_opts_conf opts_conf;
-    // t_opt_set_db    *tmp_opt    = NULL;
+    t_opt_set_db    *tmp_opt    = NULL;
     t_args_db       *tmp_arg    = NULL;
     size_t          args_len    = 0;
 
@@ -36,86 +36,73 @@ uint8_t  get_opts_args_handler(t_core *core, int argc, char **argv)
         print_unallowed_opt(core->opts_args);
         exit_routine(core, FAILURE);
     }
-    // if (core->opts_args->all & V_OPT || get_opt_set_db(&core->opts_args->opt_set, V_OPT_ARRAY))
-    // {
-    //     print_version();
-    //     exit_routine(core, SUCCESS);
-    // }
-    // if (get_opt_set_db(&core->opts_args->opt_set, H_OPT_ARRAY))
-    // {
-    //     print_usage();
-    //     exit_routine(core, SUCCESS);
-    // }
-    debug_opts_args(core->opts_args);
-    get_opt_set_db(core->opts_args->opt_set, NULL);
-    exit_routine(core, FAILURE);
-
-    // if (core->opts_args->all & M_OPT)// || (tmp_opt = get_opt_set_db(&core->opts_args->opt_set, M_OPT_ARRAY)))
-    // {
-    //     // if (!tmp_opt)
-    //     tmp_opt = get_opt_set_db(&core->opts_args->opt_set, "m");
-    //     if (tmp_opt->arg)
-    //     {
-    //         if (ft_is_number(tmp_opt->arg))
-    //         {
-    //             core->hops = ft_atoi(tmp_opt->arg);
-    //             if (core->hops < MIN_HOPS || core->hops > MAX_HOPS)
-    //             {
-    //                 if (core->hops == 0)
-    //                     dprintf(STDERR_FILENO, "first hop out of range\n");
-    //                 else
-    //                     dprintf(STDERR_FILENO, "max hops cannot be more than 255\n");
-    //                 exit_routine(core, FAILURE);
-    //             }
-    //         }
-    //         else
-    //         {
-    //             dprintf(STDERR_FILENO, "Cannot handle `%s%s' option with arg `%s' (argc %d)\n", core->opts_args->all & M_OPT ? "-" : "--", tmp_opt->current, tmp_opt->arg, tmp_opt->argc + 1);
-    //             exit_routine(core, FAILURE);
-    //         }
-    //     }
-    //     else
-    //     {
-    //         dprintf(STDERR_FILENO, "Option `%s%s' (argc %d) requires an argument: `%s'\n",  core->opts_args->all & M_OPT ? "-" : "--", tmp_opt->current, tmp_opt->argc, core->opts_args->all & M_OPT ? "-m max_ttl" : "--max-hops=max_ttl");
-    //         exit_routine(core, FAILURE);
-    //     }
-    //     tmp_opt = NULL;
-    // }
-    // if (core->opts_args->all & Q_OPT )//|| (tmp_opt = get_opt_set_db(&core->opts_args->opt_set, Q_OPT_ARRAY)))
-    // {
-    //     // if (!tmp_opt)
-    //     // {
-    //         tmp_opt = get_opt_set_db(&core->opts_args->opt_set, "q");
-    //         if (tmp_opt)
-    //             printf("YOP\n");
-    //         else
-    //             printf("TAMER\n");
-    //     // }
-    //     printf("?????\n");
-    //     if (tmp_opt->arg)
-    //     {
-    //         if (ft_is_number(tmp_opt->arg))
-    //         {
-    //             core->probes = ft_atoi(tmp_opt->arg);
-    //             if (core->probes < MIN_PROBES || core->probes > MAX_PROBES)
-    //             {
-    //                 dprintf(STDERR_FILENO, "no more than 10 probes per hop\n");
-    //                 exit_routine(core, FAILURE);
-    //             }
-    //         }
-    //         else
-    //         {
-    //             dprintf(STDERR_FILENO, "Cannot handle `%s%s' option with arg `%s' (argc %d)\n", core->opts_args->all & Q_OPT ? "-" : "--", tmp_opt->current, tmp_opt->arg, tmp_opt->argc + 1);
-    //             exit_routine(core, FAILURE);
-    //         }
-    //     }
-    //     else
-    //     {
-    //         dprintf(STDERR_FILENO, "Option `%s%s' (argc %d) requires an argument: `%s'\n", core->opts_args->all & Q_OPT ? "-" : "--", tmp_opt->current, tmp_opt->argc, core->opts_args->all & Q_OPT ? "-q nqueries" : "--queries=nqueries");
-    //         exit_routine(core, FAILURE);
-    //     }
-    //     tmp_opt = NULL;
-    // }
+    if (core->opts_args->all & V_OPT || get_opt_set_db(&core->opts_args->opt_set, V_OPT_ARRAY))
+    {
+        print_version();
+        exit_routine(core, SUCCESS);
+    }
+    if (get_opt_set_db(&core->opts_args->opt_set, H_OPT_ARRAY))
+    {
+        print_usage();
+        exit_routine(core, SUCCESS);
+    }
+    if (core->opts_args->all & M_OPT || (tmp_opt = get_opt_set_db(&core->opts_args->opt_set, M_OPT_ARRAY)))
+    {
+        if (!tmp_opt)
+            tmp_opt = get_opt_set_db(&core->opts_args->opt_set, "m");
+        if (tmp_opt->arg)
+        {
+            if (ft_is_number(tmp_opt->arg))
+            {
+                core->hops = ft_atoi(tmp_opt->arg);
+                if (core->hops < MIN_HOPS || core->hops > MAX_HOPS)
+                {
+                    if (core->hops == 0)
+                        dprintf(STDERR_FILENO, "first hop out of range\n");
+                    else
+                        dprintf(STDERR_FILENO, "max hops cannot be more than 255\n");
+                    exit_routine(core, FAILURE);
+                }
+            }
+            else
+            {
+                dprintf(STDERR_FILENO, "Cannot handle `%s%s' option with arg `%s' (argc %d)\n", core->opts_args->all & M_OPT ? "-" : "--", tmp_opt->current, tmp_opt->arg, tmp_opt->argc + 1);
+                exit_routine(core, FAILURE);
+            }
+        }
+        else
+        {
+            dprintf(STDERR_FILENO, "Option `%s%s' (argc %d) requires an argument: `%s'\n",  core->opts_args->all & M_OPT ? "-" : "--", tmp_opt->current, tmp_opt->argc, core->opts_args->all & M_OPT ? "-m max_ttl" : "--max-hops=max_ttl");
+            exit_routine(core, FAILURE);
+        }
+    }
+    if (core->opts_args->all & Q_OPT || (tmp_opt = get_opt_set_db(&core->opts_args->opt_set, Q_OPT_ARRAY)))
+    {
+        if (!tmp_opt)
+            tmp_opt = get_opt_set_db(&core->opts_args->opt_set, "q");
+        if (tmp_opt->arg)
+        {
+            if (ft_is_number(tmp_opt->arg))
+            {
+                core->probes = ft_atoi(tmp_opt->arg);
+                if (core->probes < MIN_PROBES || core->probes > MAX_PROBES)
+                {
+                    dprintf(STDERR_FILENO, "no more than 10 probes per hop\n");
+                    exit_routine(core, FAILURE);
+                }
+            }
+            else
+            {
+                dprintf(STDERR_FILENO, "Cannot handle `%s%s' option with arg `%s' (argc %d)\n", core->opts_args->all & Q_OPT ? "-" : "--", tmp_opt->current, tmp_opt->arg, tmp_opt->argc + 1);
+                exit_routine(core, FAILURE);
+            }
+        }
+        else
+        {
+            dprintf(STDERR_FILENO, "Option `%s%s' (argc %d) requires an argument: `%s'\n", core->opts_args->all & Q_OPT ? "-" : "--", tmp_opt->current, tmp_opt->argc, core->opts_args->all & Q_OPT ? "-q nqueries" : "--queries=nqueries");
+            exit_routine(core, FAILURE);
+        }
+    }
     if (!(args_len = ft_lstlen(core->opts_args->args)))
     {
         dprintf(STDERR_FILENO, "Specify \"host\" missing argument.\n");
