@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 13:19:29 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/22 09:59:45 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/06/22 14:02:55 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void    exec_ft_traceroute(t_core *core)
         exit_routine(core, FAILURE);
     }
 
-    int ttl = 7;
+    int ttl = core->hops;
     if ((setsockopt(sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(int))) != SUCCESS)
     {
         printf("setsockopt(): ERROR: %s , errno %d\n", strerror(errno), errno);
@@ -65,7 +65,7 @@ void    exec_ft_traceroute(t_core *core)
                     sizeof(core->target_addr));
     printf("%zd\n", bytes_sent);
 
-    char            buffer[256];
+    char            buffer[520];
     ssize_t         bytes_received = 0;
     struct          sockaddr_in recv;
 
@@ -135,8 +135,7 @@ int     main(int argc, char *argv[])
 
     core.packetlen  = DEFAULT_PACKETLEN;
     core.hops       = DEFAULT_HOPS;
-    core.dst_port   = DEFAULT_DEST_PORT;
-    core.src_port   = DEFAULT_SOURCE_PORT;
+    core.dst_port   = DEFAULT_DST_PORT;
 
     if (get_opts_args_handler(&core, argc, argv) != SUCCESS)
         return (EXIT_FAILURE);

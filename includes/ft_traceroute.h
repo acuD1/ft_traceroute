@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/26 15:25:59 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/22 10:00:21 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/06/22 15:06:32 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,33 +35,43 @@
 # define BUILD_RELEASE_STRING   STR_VALUE(BUILDR)
 # define BUILD_PATCH_STRING     STR_VALUE(BUILDP)
 # define BUILD_DATE_STRING      STR_VALUE(DATE)
+# define POSITION(x)            x
 /* OPTIONS */
 # define UNALLOWED_OPT          1ULL << 63
 # define H_OPT_ARRAY            "help"
-# define H_OPT                  1ULL << ('h' - 97)
 # define V_OPT_ARRAY            "version"
 # define V_OPT                  1ULL << ('V' - 39)
-# define M_OPT_ARRAY            "max_ttl"
+# define M_OPT_ARRAY            "max-hops"
 # define M_OPT                  1ULL << ('m' - 97)
-# define ALLOWED_OPT            "hmV"
-# define ALLOWED_OPT_ARG        "m"
+# define Q_OPT_ARRAY            "queries"
+# define Q_OPT                  1ULL << ('q' - 97)
+# define ALLOWED_OPT            "mVq"
+# define ALLOWED_OPT_ARG        "mq"
 # define ALLOWED_OPT_TAB        ((const char *[])   \
                                 {                   \
                                     H_OPT_ARRAY,    \
                                     V_OPT_ARRAY,    \
                                     M_OPT_ARRAY,    \
+                                    Q_OPT_ARRAY,    \
                                     NULL            \
                                 })
 # define ALLOWED_OPT_TAB_ARG    ((const char *[])   \
                                 {                   \
                                     M_OPT_ARRAY,    \
+                                    Q_OPT_ARRAY,    \
                                     NULL            \
                                 })
 /**/
 # define DEFAULT_PACKETLEN      60
+# define MIN_PACKETLEN          28
+# define MAX_PACKETLEN          65000
 # define DEFAULT_HOPS           30
-# define DEFAULT_SOURCE_PORT    8222
-# define DEFAULT_DEST_PORT      33434
+# define MIN_HOPS               1
+# define MAX_HOPS               255
+# define DEFAULT_PROBES         3
+# define MIN_PROBES             1
+# define MAX_PROBES             10
+# define DEFAULT_DST_PORT       33434
 # define IPHDR_SIZE             20
 # define UDPHDR_SIZE            8
 
@@ -71,7 +81,7 @@ typedef struct                  s_core
     char                        *target;
     uint32_t                    packetlen;
     uint32_t                    hops;
-    int                         src_port;
+    uint32_t                    probes;
     int                         dst_port;
     struct sockaddr_storage     target_addr;
 }                               t_core;
