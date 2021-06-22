@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 13:19:29 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/22 14:02:55 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/06/22 16:52:18 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ void    exec_ft_traceroute(t_core *core)
 
     print_bytes(payload_size, &payload);
 
-
     int sockfd = 0;
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
     {
@@ -51,19 +50,28 @@ void    exec_ft_traceroute(t_core *core)
         exit_routine(core, FAILURE);
     }
 
-    int ttl = core->hops;
-    if ((setsockopt(sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(int))) != SUCCESS)
+    /*  Loop send */
+
+    for (size_t ttl = 1; ttl <= core->hops; ttl++)
     {
-        printf("setsockopt(): ERROR: %s , errno %d\n", strerror(errno), errno);
-        exit_routine(core, FAILURE);
+        if ((setsockopt(sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl))) != SUCCESS)
+        {
+            printf("setsockopt(): ERROR: %s , errno %d\n", strerror(errno), errno);
+            exit_routine(core, FAILURE);
+        }
+
+        for (size_t i = 0; i < core->probes; i++)
+        {
+            ((struct sockaddr_in *)&core->target_addr)->sin_port        = htons(core->dst_port++);
+
+            bind(sockfd, (struct sockaddr *)&core->target_addr, sizeof(core->target_addr));
+
+            ssize_t bytes_sent = 0;
+            bytes_sent = sendto(sockfd, payload, payload_size, 0, (struct sockaddr_in *)&core->target_addr, sizeof(core->target_addr));
+            printf("BYTES_SENT |%zd|\n", bytes_sent);
+        }
     }
 
-    ssize_t bytes_sent = 0;
-    bytes_sent = sendto(sockfd, payload,
-                    payload_size, 0,
-                    ( struct sockaddr_in *)&core->target_addr,
-                    sizeof(core->target_addr));
-    printf("%zd\n", bytes_sent);
 
     char            buffer[520];
     ssize_t         bytes_received = 0;
@@ -72,24 +80,34 @@ void    exec_ft_traceroute(t_core *core)
     ft_memset(&buffer, 0, sizeof(buffer));
     socklen_t len = sizeof(recv);
 
-    int sockfdr;
 
-    if ((sockfdr = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
+    // int sockfdr1;
+
+    // if ((sockfdr1 = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
+    // {
+    //     printf("socket(): ERROR: %s , errno %d\n", strerror(errno), errno);
+    //     exit_routine(core, FAILURE);
+    // }
+    int sockfdr2;
+
+    if ((sockfdr2 = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
     {
         printf("socket(): ERROR: %s , errno %d\n", strerror(errno), errno);
         exit_routine(core, FAILURE);
     }
 
+
     fd_set rfds;
     struct timeval tv;
     int retval;
     FD_ZERO(&rfds);
-    FD_SET(sockfdr, &rfds);
+    FD_SET(sockfd, &rfds);
+    FD_SET(sockfdr2, &rfds);
 
     tv.tv_sec = 5;
     tv.tv_usec = 0;
 
-    retval = select(sockfdr + 1, &rfds, NULL, NULL, &tv);
+    retval = select(3, &rfds, NULL, NULL, &tv);
            /* Don't rely on the value of tv now! */
 
     if (retval == -1)
@@ -97,32 +115,35 @@ void    exec_ft_traceroute(t_core *core)
     else if (retval)
     {
         printf("Data is available now.\n");
-        if (FD_ISSET(sockfdr, &rfds))
+        if (FD_ISSET(sockfd, &rfds))
         {
-            bytes_received = recvfrom(sockfdr, &buffer, sizeof(buffer), MSG_DONTWAIT, (struct sockaddr*)&recv, &len);
+            printf("[DEBUG] SOCKET 1\n");
+            bytes_received = recvfrom(sockfd, &buffer, sizeof(buffer), MSG_DONTWAIT, (struct sockaddr*)&recv, &len);
             if (bytes_received == -1)
             {
                 printf("recvfrom(): ERROR: %s , errno %d\n", strerror(errno), errno);
                 exit_routine(core, FAILURE);
             }
         }
+        if (FD_ISSET(sockfdr2, &rfds))
+            printf("SOCKET 2\n");
     }
         /* FD_ISSET(0, &rfds) will be true. */
     else
         printf("No data within five seconds.\n");
 
 
-    printf("bytes_received| %zu\n", bytes_received);
-    print_bytes(256, buffer);
-    printf("ID %d\n", htons(((struct iphdr *)buffer)->id));
-    // printf("id : %d\n", (struct iphdr))
-    char                buff_ipv4[INET_ADDRSTRLEN];
-    ft_memset(&buff_ipv4, 0, INET_ADDRSTRLEN);
-    inet_ntop(AF_INET, &((struct iphdr *)buffer)->daddr, buff_ipv4, sizeof(buff_ipv4));
-    printf("To %s\n", buff_ipv4);
-    ft_memset(&buff_ipv4, 0, INET_ADDRSTRLEN);
-    inet_ntop(AF_INET, &((struct iphdr *)buffer)->saddr, buff_ipv4, sizeof(buff_ipv4));
-    printf("From %s\n", buff_ipv4);
+    // printf("bytes_received| %zu\n", bytes_received);
+    // print_bytes(256, buffer);
+    // printf("ID %d\n", htons(((struct iphdr *)buffer)->id));
+    // // printf("id : %d\n", (struct iphdr))
+    // char                buff_ipv4[INET_ADDRSTRLEN];
+    // ft_memset(&buff_ipv4, 0, INET_ADDRSTRLEN);
+    // inet_ntop(AF_INET, &((struct iphdr *)buffer)->daddr, buff_ipv4, sizeof(buff_ipv4));
+    // printf("To %s\n", buff_ipv4);
+    // ft_memset(&buff_ipv4, 0, INET_ADDRSTRLEN);
+    // inet_ntop(AF_INET, &((struct iphdr *)buffer)->saddr, buff_ipv4, sizeof(buff_ipv4));
+    // printf("From %s\n", buff_ipv4);
 
 
 }
@@ -135,6 +156,7 @@ int     main(int argc, char *argv[])
 
     core.packetlen  = DEFAULT_PACKETLEN;
     core.hops       = DEFAULT_HOPS;
+    core.probes     = DEFAULT_PROBES;
     core.dst_port   = DEFAULT_DST_PORT;
 
     if (get_opts_args_handler(&core, argc, argv) != SUCCESS)

@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 15:10:24 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/20 16:34:43 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/06/22 15:48:14 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ void    debug_core(t_core *core)
     dprintf(STDERR_FILENO, "\n\n[DEBUG] -> target |%s|\n", core->target);
     dprintf(STDERR_FILENO, "[DEBUG] -> packetlen |%d|\n", core->packetlen);
     dprintf(STDERR_FILENO, "[DEBUG] -> hops |%d|\n", core->hops);
+    dprintf(STDERR_FILENO, "[DEBUG] -> probes |%d|\n", core->probes);
 }
 
 void    print_bytes(int bytes, void *msg)
