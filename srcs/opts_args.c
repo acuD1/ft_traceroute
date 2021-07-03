@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 14:57:34 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/22 19:26:45 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/06/23 18:48:37 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 uint8_t  get_opts_args_handler(t_core *core, int argc, char **argv)
 {
-    t_opts_conf opts_conf;
+    t_opts_conf     opts_conf;
     t_opt_set_db    *tmp_opt    = NULL;
     t_args_db       *tmp_arg    = NULL;
     size_t          args_len    = 0;
