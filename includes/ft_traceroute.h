@@ -99,5 +99,4 @@ uint8_t                         init_core(t_core *core);
 void    debug_core(t_core *core);
 void    print_bytes(int bytes, void *msg);
 
-
 #endif

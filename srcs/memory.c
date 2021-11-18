@@ -14,14 +14,16 @@
 
 void    free_core(t_core *core)
 {
-    free_opts_args(core->opts_args);
-    ft_strdel(&core->target);
+    (void)core;
+    // free_opts_args(core->opts_args);
+    // ft_strdel(&core->target);
     // free(core);
     // core = NULL;
 }
 
 void   exit_routine(t_core *core, int8_t status)
 {
-    free_core(core);
+    (void)core;
+    // free_core(core);
     exit(status);
 }

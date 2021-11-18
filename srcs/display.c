@@ -14,12 +14,13 @@
 
 void     print_unallowed_opt(t_opts_args *opts_args)
 {
-    if (opts_args->invalid)
-        dprintf(STDERR_FILENO,
-            "Bad option `--%s' (argc %d)\n", opts_args->invalid, opts_args->argc);
-    else
-        dprintf(STDERR_FILENO,
-            "Bad option `-%c' (argc %d)\n", (char)(opts_args->all % 128), opts_args->argc);
+    (void)opts_args;
+    // if (opts_args->invalid)
+    //     dprintf(STDERR_FILENO,
+    //         "Bad option `--%s' (argc %d)\n", opts_args->invalid, opts_args->argc);
+    // else
+    //     dprintf(STDERR_FILENO,
+    //         "Bad option `-%c' (argc %d)\n", (char)(opts_args->all % 128), opts_args->argc);
 }
 
 /* Build informations */
