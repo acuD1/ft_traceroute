@@ -22,50 +22,50 @@ ifneq ($(words $(MAKECMDGOALS)),1)
 	@$(MAKE) $@ --no-print-directory -rRf $(firstword $(MAKEFILE_LIST))
 else
 ifndef ECHO
-T					:=	$(shell $(MAKE) $(MAKECMDGOALS) --no-print-directory \
-						-nrRf $(firstword $(MAKEFILE_LIST)) \
-						ECHO="OutputPrintable" | grep -c "OutputPrintable")
-N					:=	x
-C					=	$(words $N)$(eval N := x $N)
-V					=	"`expr "   [\`expr $C '*' 100 / $T\`" : '.*\(....\)$$'`%]"
-ECHO				=	printf "\e[1A\r%s %s %s                                          \n" $V
+T                   :=  $(shell $(MAKE) $(MAKECMDGOALS) --no-print-directory \
+                        -nrRf $(firstword $(MAKEFILE_LIST)) \
+                        ECHO="OutputPrintable" | grep -c "OutputPrintable")
+N                   :=  x
+C                   =   $(words $N)$(eval N := x $N)
+V                   =   "`expr "   [\`expr $C '*' 100 / $T\`" : '.*\(....\)$$'`%]"
+ECHO                =   printf "\e[1A\r%s %s %s                                          \n" $V
 endif
 
 # Color
 
-RESET_C				=	\033[m
-B_C					=	\033[0;34m
-Y_C					=	\033[0;33m
-G_C					=	\033[0;32m
-R_C					=	\033[0;31m
-M_C					=	\033[0;35m
-C_C					=	\033[0;36m
-F_C					=	\033[35;5;108m
+RESET_C             =   \033[m
+B_C                 =   \033[0;34m
+Y_C                 =   \033[0;33m
+G_C                 =   \033[0;32m
+R_C                 =   \033[0;31m
+M_C                 =   \033[0;35m
+C_C                 =   \033[0;36m
+F_C                 =   \033[35;5;108m
 
 # Programms names
 
-NAME				=	ft_traceroute
-LNAME				=	libft.a
+NAME                =   ft_traceroute
+LNAME               =   libft.a
 
 # Build information that can be added the predefines buffer at compilation
 
-BUILD_FILE			=	.build
-BUILD_DATE			=	$$(date +'%Y%m%d')
-BUILD_BRANCH		=	$$(git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3)
-BUILD_RELEASE		=	$$(awk 'NR==3 {print $$3}' $(BUILD_FILE))
-BUILD_VERSION		=	$$(awk 'NR==4 {print $$3}' $(BUILD_FILE))
-BUILD_PATCH			=	$$(awk 'NR==5 {print $$3}' $(BUILD_FILE))
-DEFAULT_BUILD_FILE	=	"Build information, patch level is incremented at \
+BUILD_FILE          =   .build
+BUILD_DATE          =   $$(date +'%Y%m%d')
+BUILD_BRANCH        =   $$(git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3)
+BUILD_RELEASE       =   $$(awk 'NR==3 {print $$3}' $(BUILD_FILE))
+BUILD_VERSION       =   $$(awk 'NR==4 {print $$3}' $(BUILD_FILE))
+BUILD_PATCH         =   $$(awk 'NR==5 {print $$3}' $(BUILD_FILE))
+DEFAULT_BUILD_FILE  =   "Build information, patch level is incremented at \
 compilation.\n\nRELEASE\t=\t0\nVERSION\t=\t0\nPATCH\t=\t0"
 
 # Dir/Files Path (Do not modify)
 
-S_PATH				=	srcs/
-H_PATH				+=	includes/
-H_PATH				+=	libft/includes/
-B_PATH				=	build/
-O_PATH				=	build/objs/
-L_PATH				=	libft/
+S_PATH              =   srcs/
+H_PATH              +=  includes/
+H_PATH              +=  libft/includes/
+B_PATH              =   build/
+O_PATH              =   build/objs/
+L_PATH              =   libft/
 
 ###############################################################################
 #                               Modifications                                 #
@@ -73,40 +73,38 @@ L_PATH				=	libft/
 
 # Add custom dir for .o
 
-# CORE				=	core/
-# DB					=	db/
-# SIGNALS				= 	signals/
-# DISPLAY				=	display/
+CORE                =   core/
+TOOLS               =   tools/
+DISPLAY             =   display/
 
 # Add previous custom dir with $(O_PATH){custom dir} to PATH varriable
 
-PATHS				+=	$(B_PATH)
-PATHS				+=	$(O_PATH)
-# PATHS				+=	$(O_PATH)$(CORE)
-# PATHS				+=	$(O_PATH)$(DB)
-# PATHS				+=	$(O_PATH)$(DISPLAY)
-# PATHS				+=	$(O_PATH)$(SIGNALS)
+PATHS               +=  $(B_PATH)
+PATHS               +=  $(O_PATH)
+PATHS               +=  $(O_PATH)$(CORE)
+PATHS               +=  $(O_PATH)$(TOOLS)
+PATHS               +=  $(O_PATH)$(DISPLAY)
 
 # Files
 
-SRC					+= $(S_PATH)main.c
-SRC					+= $(S_PATH)memory.c
-SRC					+= $(S_PATH)errors.c
-SRC					+= $(S_PATH)display.c
-SRC					+= $(S_PATH)opts_args.c
-SRC					+= $(S_PATH)init.c
+SRC                 += $(S_PATH)$(CORE)main.c
+SRC                 += $(S_PATH)$(CORE)memory.c
+SRC                 += $(S_PATH)$(CORE)init.c
+SRC                 += $(S_PATH)$(CORE)opts_args.c
 
-SRC					+= $(S_PATH)dev.c
+SRC                 += $(S_PATH)$(DISPLAY)usage.c
+SRC                 += $(S_PATH)$(DISPLAY)errors.c
+SRC                 += $(S_PATH)$(DISPLAY)version.c
 
 
 # Headers
 
-HDR					+=	libft.h
-HDR					+=	ft_traceroute.h
+HDR                 +=  libft.h
+HDR                 +=  ft_traceroute.h
 
 # std
 
-# STD					+=	gnu17
+# STD                   +=  gnu17
 
 
 ###############################################################################
@@ -115,40 +113,41 @@ HDR					+=	ft_traceroute.h
 
 # Objects
 
-OBJ					=	$(patsubst $(S_PATH)%.c, $(O_PATH)%.o, $(SRC))
-LIB					=	$(L_PATH)$(LNAME)
+OBJ                 =   $(patsubst $(S_PATH)%.c, $(O_PATH)%.o, $(SRC))
+LIB                 =   $(L_PATH)$(LNAME)
 vpath %.h $(H_PATH)
 
 # Variables
 
-DEBUG				=
-CFLAGS				=	-Wall -Wextra -Werror #-std=$(STD)
+DEBUG               =
+DEBUG_MODE          =
+CFLAGS              =   -Wall -Wextra -Werror #-std=$(STD)
 ifeq ($(DEBUG), g)
-	CFLAGS			=	-g
+    CFLAGS          =   -g
 else ifeq ($(DEBUG), fsanitize)
-	CFLAGS			=	-fsanitize=address -g3
+    CFLAGS          =   -fsanitize=address -g3
 else ifeq ($(DEBUG), hard)
-	CFLAGS			+=	-Weverything -fsanitize=address,undefined # -Wno-cast-qual -Wno-missing-noreturn -Wno-disabled-macro-expansion -Wno-reserved-id-macro
+    CFLAGS          +=  -Weverything -fsanitize=address,undefined,unreachable -DDEBUG
 else ifeq ($(DEBUG), dev)
-	CFLAGS			=
+    CFLAGS          =
 endif
-CC					=	clang $(CFLAGS)
-IFLAGS				+=	$(addprefix -I, $(H_PATH))
-CMPLC				=	$(CC) -c $(IFLAGS)
-CMPLO				=	$(CC) -o
-BUILD				=	$(PATHS)
-AR_RC				=	ar rc
-RANLI				=	ranlib
-RM_RF				=	/bin/rm -rf
-MKDIR				=	mkdir -p
-NORME				=	norminette
-SLEEP				=	sleep 0.01
-GCFIL				=	"- > Compiling	-"
-RMSHW				=	"- - Removing	-"
-MKSHW				=	"- + Creating	-"
-GCSUC				=	echo "$(G_C)=====>     SUCCESS$(RESET_C)"
-CLSUC				=	echo "$(R_C)=====>     DONE$(RESET_C)"
-NORMD				=	echo "$(G_C)=====>     DONE$(RESET_C)"
+CC                  =   clang $(CFLAGS)
+IFLAGS              +=  $(addprefix -I, $(H_PATH))
+CMPLC               =   $(CC) -c $(IFLAGS)
+CMPLO               =   $(CC) -o
+BUILD               =   $(PATHS)
+AR_RC               =   ar rc
+RANLI               =   ranlib
+RM_RF               =   /bin/rm -rf
+MKDIR               =   mkdir -p
+NORME               =   norminette
+SLEEP               =   sleep 0.01
+GCFIL               =   "- > Compiling  -"
+RMSHW               =   "- - Removing   -"
+MKSHW               =   "- + Creating   -"
+GCSUC               =   echo "$(G_C)=====>     SUCCESS$(RESET_C)"
+CLSUC               =   echo "$(R_C)=====>     DONE$(RESET_C)"
+NORMD               =   echo "$(G_C)=====>     DONE$(RESET_C)"
 
 .PHONY: all norme clean fclean re test
 
@@ -157,7 +156,7 @@ make:
 	echo "# **************************************************************************** #"
 	echo "#                                                                              #"
 	echo "#                                                         :::      ::::::::    #"
-	echo "#    Makefile for ft_ping                               :+:      :+:    :+:    #"
+	echo "#    Makefile for ft_traceroute                         :+:      :+:    :+:    #"
 	echo "#                                                     +:+ +:+         +:+      #"
 	echo "#    By arsciand                                    +#+  +:+       +#+         #"
 	echo "#                                                 +#+#+#+#+#+   +#+            #"

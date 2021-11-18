@@ -6,79 +6,94 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 14:57:34 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/23 18:48:37 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/18 17:04:54 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_traceroute.h"
 
-uint8_t  get_opts_args_handler(t_core *core, int argc, char **argv)
+static uint8_t  set_opts_args_failure(t_opts_args *opts_args)
 {
-    (void)core;
-    (void)argc;
-    (void)argv;
-    // t_opts_conf     opts_conf;
-    // t_opt_set_db    *tmp_opt    = NULL;
-    // t_args_db       *tmp_arg    = NULL;
-    // size_t          args_len    = 0;
+    free_opts_args(opts_args);
+    return (FAILURE);
+}
 
-    // ft_memset(&opts_conf, 0, sizeof(t_opts_conf));
-    // opts_conf.allowed_opt           = ALLOWED_OPT;
-    // opts_conf.allowed_opt_arg       = ALLOWED_OPT_ARG;
-    // opts_conf.allowed_opt_tab       = ALLOWED_OPT_TAB;
-    // opts_conf.allowed_opt_tab_arg   = ALLOWED_OPT_TAB_ARG;
-    // if (argc < 2)
-    // {
-    //     print_usage();
-    //     exit_routine(core, SUCCESS);
-    // }
-    // if (!(core->opts_args = ft_get_opts_args(argc, argv, &opts_conf)))
-    //     return (FAILURE);
-    // if (core->opts_args->all & UNALLOWED_OPT)
-    // {
-    //     print_unallowed_opt(core->opts_args);
-    //     exit_routine(core, FAILURE);
-    // }
-    // if (core->opts_args->all & V_OPT || get_opt_set_db(&core->opts_args->opt_set, V_OPT_ARRAY))
-    // {
-    //     print_version();
-    //     exit_routine(core, SUCCESS);
-    // }
-    // if (get_opt_set_db(&core->opts_args->opt_set, H_OPT_ARRAY))
-    // {
-    //     print_usage();
-    //     exit_routine(core, SUCCESS);
-    // }
-    // if (core->opts_args->all & M_OPT || (tmp_opt = get_opt_set_db(&core->opts_args->opt_set, M_OPT_ARRAY)))
-    // {
-    //     if (!tmp_opt)
-    //         tmp_opt = get_opt_set_db(&core->opts_args->opt_set, "m");
-    //     if (tmp_opt->arg)
-    //     {
-    //         if (ft_is_number(tmp_opt->arg))
-    //         {
-    //             core->hops = ft_atoi(tmp_opt->arg);
-    //             if (core->hops < MIN_HOPS || core->hops > MAX_HOPS)
-    //             {
-    //                 if (core->hops == 0)
-    //                     dprintf(STDERR_FILENO, "first hop out of range\n");
-    //                 else
-    //                     dprintf(STDERR_FILENO, "max hops cannot be more than 255\n");
-    //                 exit_routine(core, FAILURE);
-    //             }
-    //         }
-    //         else
-    //         {
-    //             dprintf(STDERR_FILENO, "Cannot handle `%s%s' option with arg `%s' (argc %d)\n", core->opts_args->all & M_OPT ? "-" : "--", tmp_opt->current, tmp_opt->arg, tmp_opt->argc + 1);
-    //             exit_routine(core, FAILURE);
-    //         }
-    //     }
-    //     else
-    //     {
-    //         dprintf(STDERR_FILENO, "Option `%s%s' (argc %d) requires an argument: `%s'\n",  core->opts_args->all & M_OPT ? "-" : "--", tmp_opt->current, tmp_opt->argc, core->opts_args->all & M_OPT ? "-m max_ttl" : "--max-hops=max_ttl");
-    //         exit_routine(core, FAILURE);
-    //     }
-    // }
+uint8_t  set_opts_args(t_traceroute *traceroute, int argc, char **argv)
+{
+    (void)argv;
+    t_opts_conf     opts_conf;
+    t_opts_args     opts_args;
+    t_opt_set_db    *tmp                = NULL;
+    (void)tmp;
+
+    ft_memset(&opts_conf, 0, sizeof(t_opts_conf));
+    ft_memset(&opts_args, 0, sizeof(t_opts_args));
+    opts_conf.allowed_opt               = ALLOWED_OPT;
+    opts_conf.allowed_opt_arg           = ALLOWED_OPT_ARG;
+    opts_conf.allowed_opt_tab           = ALLOWED_OPT_TAB;
+    opts_conf.allowed_opt_tab_arg       = ALLOWED_OPT_TAB_ARG;
+    opts_conf.allowed_opt_assign        = ALLOWED_OPT_ASSIGN;
+    opts_conf.allowed_opt_assign_tab    = ALLOWED_OPT_ASSIGN_TAB;
+
+    if (argc < 2)
+    {
+        print_usage();
+        exit_routine(traceroute, EXIT_SUCCESS);
+    }
+
+    if (ft_get_opts_args(&opts_args, &opts_conf, argc, argv) != SUCCESS)
+        return (set_opts_args_failure(&opts_args));
+    debug_opts_args(&opts_args);
+
+    if (opts_args.all & UNALLOWED_OPT)
+    {
+        print_unallowed_opt(&opts_args);
+        return (set_opts_args_failure(&opts_args));
+    }
+
+    if (opts_args.all & H_OPT || (tmp = get_opt_set_db(&opts_args.opt_set, H_OPT_STR)) != NULL)
+    {
+        print_usage();
+        exit_routine(traceroute, EXIT_SUCCESS);
+    }
+
+    if (opts_args.all & VV_OPT)
+    {
+        print_version();
+        exit_routine(traceroute, EXIT_SUCCESS);
+    }
+
+    if (opts_args.all & M_OPT || (tmp = get_opt_set_db(&opts_args.opt_set, M_OPT_STR)))
+    {
+        if (!tmp)
+            tmp = get_opt_set_db(&opts_args.opt_set, "m");
+        if (tmp->arg)
+        {
+            if (ft_isnum(tmp->arg))
+            {
+                int tmp_hops = ft_atoi(tmp->arg);
+                if (tmp_hops < MIN_HOPS || tmp_hops > MAX_HOPS)
+                {
+                    if (tmp_hops == 0)
+                        dprintf(STDERR_FILENO, "first hop out of range\n");
+                    else
+                        dprintf(STDERR_FILENO, "max hops cannot be more than 255\n");
+                    return (set_opts_args_failure(&opts_args));
+                }
+                traceroute->conf.hops = (uint32_t)tmp_hops;
+            }
+            else
+            {
+                dprintf(STDERR_FILENO, "Cannot handle `%s%s' option with arg `%s' (argc %d)\n", opts_args.all & M_OPT ? "-" : "--", tmp->current, tmp->arg, tmp->argc);
+                return (set_opts_args_failure(&opts_args));
+            }
+        }
+        else
+        {
+            dprintf(STDERR_FILENO, "Option `%s%s' (argc %d) requires an argument: `%s'\n",  opts_args.all & M_OPT ? "-" : "--", tmp->current, tmp->argc,  opts_args.all & M_OPT ? "-m max_ttl" : "--max-hops=max_ttl");
+            return (set_opts_args_failure(&opts_args));
+        }
+    }
     // if (core->opts_args->all & Q_OPT || (tmp_opt = get_opt_set_db(&core->opts_args->opt_set, Q_OPT_ARRAY)))
     // {
     //     if (!tmp_opt)
@@ -137,5 +152,6 @@ uint8_t  get_opts_args_handler(t_core *core, int argc, char **argv)
     //         }
     //     }
     // }
+    free_opts_args(&opts_args);
     return (SUCCESS);
 }

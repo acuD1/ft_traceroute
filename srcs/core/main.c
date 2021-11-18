@@ -6,15 +6,15 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 13:19:29 by arsciand          #+#    #+#             */
-/*   Updated: 2021/06/22 21:03:14 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/18 14:50:15 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_traceroute.h"
 
-void    exec_ft_traceroute(t_core *core)
-{
-    (void)core;
+// void    exec_ft_traceroute(t_traceroute *traceroute)
+// {
+//     (void)traceroute;
     // size_t  payload_size = core->packetlen - IPHDR_SIZE - UDPHDR_SIZE;
     // char    payload[payload_size];
 
@@ -160,17 +160,16 @@ void    exec_ft_traceroute(t_core *core)
     // ft_memset(&buff_ipv4, 0, INET_ADDRSTRLEN);
     // inet_ntop(AF_INET, &((struct iphdr *)buffer)->saddr, buff_ipv4, sizeof(buff_ipv4));
     // printf("From %s\n", buff_ipv4);
-
-
-}
+// }
 
 int     main(int argc, char *argv[])
 {
-    (void)argc;
-    (void)argv;
-    // t_core  core;
+    t_traceroute traceroute;
 
-    // ft_memset(&core, 0, sizeof(core));
+    init_traceroute(&traceroute);
+
+    if (set_opts_args(&traceroute, argc, argv) != SUCCESS)
+        exit_routine(&traceroute, FAILURE);
 
     // core.packetlen  = DEFAULT_PACKETLEN;
     // core.hops       = DEFAULT_HOPS;
@@ -194,5 +193,6 @@ int     main(int argc, char *argv[])
     // debug_core(&core);
     // debug_opts_args(core.opts_args);
     // free_core(&core);
+    free_traceroute(&traceroute);
     return (EXIT_SUCCESS);
 }
