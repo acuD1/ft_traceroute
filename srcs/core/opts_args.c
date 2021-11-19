@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 14:57:34 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/18 17:04:54 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/19 13:15:01 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,22 @@ uint8_t  set_opts_args(t_traceroute *traceroute, int argc, char **argv)
         {
             dprintf(STDERR_FILENO, "Option `%s%s' (argc %d) requires an argument: `%s'\n",  opts_args.all & M_OPT ? "-" : "--", tmp->current, tmp->argc,  opts_args.all & M_OPT ? "-m max_ttl" : "--max-hops=max_ttl");
             return (set_opts_args_failure(&opts_args));
+        }
+    }
+    if (opts_args.all & A_OPT)
+    {
+        printf("FOUND A\n");
+        if ((tmp = get_opt_set_db(&opts_args.opt_set, "a")) != NULL)
+        {
+            printf("FOUND A\n");
+            if (tmp->arg)
+            {
+                dprintf(STDERR_FILENO, "A |%s|\n", tmp->arg);
+            }
+        }
+        else
+        {
+            dprintf(STDERR_FILENO, "A |NONE|\n");
         }
     }
     // if (core->opts_args->all & Q_OPT || (tmp_opt = get_opt_set_db(&core->opts_args->opt_set, Q_OPT_ARRAY)))

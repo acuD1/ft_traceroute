@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/26 15:25:59 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/18 16:53:29 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/19 12:37:21 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@
 # define M_OPT                  1ULL << ('m' - 97)
 # define Q_OPT                  1ULL << ('q' - 97)
 # define H_OPT                  1ULL << ('h' - 97)
+# define A_OPT                  1ULL << ('a' - 97)
 # define H_OPT_STR              "help"
 # define V_OPT_STR              "version"
 # define M_OPT_STR              "max-hops"
