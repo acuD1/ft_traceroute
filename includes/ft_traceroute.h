@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/26 15:25:59 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/19 14:21:06 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/19 14:57:07 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,15 +66,15 @@
                                 })
 
 /* TRACEROUTE */
-// # define DEFAULT_PACKETLEN      60
-// # define MIN_PACKETLEN          28
-// # define MAX_PACKETLEN          65000
+# define DEFAULT_PACKETLEN      60
+# define MIN_PACKETLEN          28
+# define MAX_PACKETLEN          65000
 // # define DEFAULT_HOPS           30
 # define MIN_HOPS               1
 # define MAX_HOPS               255
-// # define DEFAULT_PROBES         3
-// # define MIN_PROBES             1
-// # define MAX_PROBES             10
+# define DEFAULT_PROBES         3
+# define MIN_PROBES             1
+# define MAX_PROBES             10
 // # define DEFAULT_DST_PORT       33434
 // # define IPHDR_SIZE             20
 // # define UDPHDR_SIZE            8
@@ -82,6 +82,8 @@
 typedef struct                  s_conf
 {
     uint32_t                    hops;
+    uint32_t                    probes;
+    uint32_t                    packetlen;
 }                               t_conf;
 typedef struct                  s_traceroute
 {

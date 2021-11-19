@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 14:57:34 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/19 13:15:01 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/19 14:59:32 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,11 @@ static uint8_t  set_opts_args_failure(t_opts_args *opts_args)
 
 uint8_t  set_opts_args(t_traceroute *traceroute, int argc, char **argv)
 {
-    (void)argv;
     t_opts_conf     opts_conf;
     t_opts_args     opts_args;
     t_opt_set_db    *tmp                = NULL;
-    (void)tmp;
+    t_args_db       *tmp_args_db        = NULL;
+    size_t          n_args              = 0;
 
     ft_memset(&opts_conf, 0, sizeof(t_opts_conf));
     ft_memset(&opts_args, 0, sizeof(t_opts_args));
@@ -43,7 +43,6 @@ uint8_t  set_opts_args(t_traceroute *traceroute, int argc, char **argv)
 
     if (ft_get_opts_args(&opts_args, &opts_conf, argc, argv) != SUCCESS)
         return (set_opts_args_failure(&opts_args));
-    debug_opts_args(&opts_args);
 
     if (opts_args.all & UNALLOWED_OPT)
     {
@@ -82,92 +81,101 @@ uint8_t  set_opts_args(t_traceroute *traceroute, int argc, char **argv)
                 }
                 traceroute->conf.hops = (uint32_t)tmp_hops;
             }
+
             else
             {
-                dprintf(STDERR_FILENO, "Cannot handle `%s%s' option with arg `%s' (argc %d)\n", opts_args.all & M_OPT ? "-" : "--", tmp->current, tmp->arg, tmp->argc);
+                dprintf(STDERR_FILENO,
+                    "Cannot handle `%s%s' option with arg `%s' (argc %d)\n",
+                    opts_args.all & M_OPT ? "-" : "--", tmp->current,
+                    tmp->arg, tmp->argc);
                 return (set_opts_args_failure(&opts_args));
             }
         }
         else
         {
-            dprintf(STDERR_FILENO, "Option `%s%s' (argc %d) requires an argument: `%s'\n",  opts_args.all & M_OPT ? "-" : "--", tmp->current, tmp->argc,  opts_args.all & M_OPT ? "-m max_ttl" : "--max-hops=max_ttl");
+            dprintf(STDERR_FILENO,
+                "Option `%s%s' (argc %d) requires an argument: `%s'\n",
+                opts_args.all & M_OPT ? "-" : "--", tmp->current, tmp->argc,
+                opts_args.all & M_OPT ? "-m max_ttl" : "--max-hops=max_ttl");
             return (set_opts_args_failure(&opts_args));
         }
     }
-    if (opts_args.all & A_OPT)
+
+    if (opts_args.all & Q_OPT || (tmp = get_opt_set_db(&opts_args.opt_set, Q_OPT_STR)))
     {
-        printf("FOUND A\n");
-        if ((tmp = get_opt_set_db(&opts_args.opt_set, "a")) != NULL)
+        if (!tmp)
+            tmp = get_opt_set_db(&opts_args.opt_set, "q");
+        if (tmp->arg)
         {
-            printf("FOUND A\n");
-            if (tmp->arg)
+            if (ft_isnum(tmp->arg))
             {
-                dprintf(STDERR_FILENO, "A |%s|\n", tmp->arg);
+                int tmp_probes = ft_atoi(tmp->arg);
+                if (tmp_probes < MIN_PROBES || tmp_probes > MAX_PROBES)
+                {
+                    dprintf(STDERR_FILENO, "no more than 10 probes per hop\n");
+                    return (set_opts_args_failure(&opts_args));
+                }
+                traceroute->conf.probes = (uint32_t)tmp_probes;
+            }
+            else
+            {
+                dprintf(STDERR_FILENO,
+                    "Cannot handle `%s%s' option with arg `%s' (argc %d)\n",
+                    opts_args.all & Q_OPT ? "-" : "--", tmp->current,
+                    tmp->arg, tmp->argc + 1);
+                return (set_opts_args_failure(&opts_args));
+
             }
         }
         else
         {
-            dprintf(STDERR_FILENO, "A |NONE|\n");
+            dprintf(STDERR_FILENO,
+                "Option `%s%s' (argc %d) requires an argument: `%s'\n",
+                opts_args.all & Q_OPT ? "-" : "--", tmp->current, tmp->argc,
+                opts_args.all & Q_OPT ? "-q nqueries" : "--queries=nqueries");
+            return (set_opts_args_failure(&opts_args));
+
         }
     }
-    // if (core->opts_args->all & Q_OPT || (tmp_opt = get_opt_set_db(&core->opts_args->opt_set, Q_OPT_ARRAY)))
-    // {
-    //     if (!tmp_opt)
-    //         tmp_opt = get_opt_set_db(&core->opts_args->opt_set, "q");
-    //     if (tmp_opt->arg)
-    //     {
-    //         if (ft_is_number(tmp_opt->arg))
-    //         {
-    //             core->probes = ft_atoi(tmp_opt->arg);
-    //             if (core->probes < MIN_PROBES || core->probes > MAX_PROBES)
-    //             {
-    //                 dprintf(STDERR_FILENO, "no more than 10 probes per hop\n");
-    //                 exit_routine(core, FAILURE);
-    //             }
-    //         }
-    //         else
-    //         {
-    //             dprintf(STDERR_FILENO, "Cannot handle `%s%s' option with arg `%s' (argc %d)\n", core->opts_args->all & Q_OPT ? "-" : "--", tmp_opt->current, tmp_opt->arg, tmp_opt->argc + 1);
-    //             exit_routine(core, FAILURE);
-    //         }
-    //     }
-    //     else
-    //     {
-    //         dprintf(STDERR_FILENO, "Option `%s%s' (argc %d) requires an argument: `%s'\n", core->opts_args->all & Q_OPT ? "-" : "--", tmp_opt->current, tmp_opt->argc, core->opts_args->all & Q_OPT ? "-q nqueries" : "--queries=nqueries");
-    //         exit_routine(core, FAILURE);
-    //     }
-    // }
-    // if (!(args_len = ft_lstlen(core->opts_args->args)))
-    // {
-    //     dprintf(STDERR_FILENO, "Specify \"host\" missing argument.\n");
-    //     exit_routine(core, FAILURE);
-    // }
-    // if (args_len > 2)
-    // {
-    //     tmp_arg = ((t_args_db *)get_arg(&core->opts_args->args, POSITION(3))->content);
-    //     dprintf(STDERR_FILENO, "Extra arg `%s' (position 3, argc %d)\n", tmp_arg->arg, tmp_arg->argc);
-    //     exit_routine(core, FAILURE);
-    // }
-    // if (args_len > 1)
-    // {
-    //     tmp_arg = ((t_args_db *)get_arg(&core->opts_args->args, POSITION(2))->content);
-    //     if (ft_is_number(tmp_arg->arg) != TRUE)
-    //     {
-    //         dprintf(STDERR_FILENO, "Cannot handle \"packetlen\" cmdline arg `%s' on position 2 (argc %d)\n", tmp_arg->arg,  tmp_arg->argc);
-    //         exit_routine(core, FAILURE);
-    //     }
-    //     else
-    //     {
-    //         core->packetlen = ft_atoi(tmp_arg->arg);
-    //         if (core->packetlen < MIN_PACKETLEN)
-    //             core->packetlen = MIN_PACKETLEN;
-    //         if (core->packetlen > MAX_PACKETLEN)
-    //         {
-    //             dprintf(STDERR_FILENO, "too big packetlen %d specified\n", core->packetlen);
-    //             exit_routine(core, FAILURE);
-    //         }
-    //     }
-    // }
+    if (!(n_args = ft_lstlen(opts_args.args)))
+    {
+        dprintf(STDERR_FILENO, "Specify \"host\" missing argument.\n");
+        return (set_opts_args_failure(&opts_args));
+    }
+    if (n_args > 2)
+    {
+        if ((tmp_args_db = get_arg(&opts_args.args, POSITION(3))) != NULL)
+            dprintf(STDERR_FILENO, "Extra arg `%s' (position 3, argc %d)\n",
+            tmp_args_db->arg, tmp_args_db->argc);
+        return (set_opts_args_failure(&opts_args));
+    }
+    if (n_args > 1)
+    {
+        if ((tmp_args_db = get_arg(&opts_args.args, POSITION(2))) != NULL)
+        {
+            if (ft_isnum(tmp_args_db->arg) != TRUE)
+            {
+                dprintf(STDERR_FILENO,
+                    "Cannot handle \"packetlen\" cmdline arg `%s' on position 2 (argc %d)\n",
+                    tmp_args_db->arg,  tmp_args_db->argc);
+                return (set_opts_args_failure(&opts_args));
+            }
+            else
+            {
+                int tmp_packetlen = ft_atoi(tmp_args_db->arg);
+                if (tmp_packetlen < MIN_PACKETLEN)
+                    tmp_packetlen = MIN_PACKETLEN;
+                if (tmp_packetlen > MAX_PACKETLEN)
+                {
+                    dprintf(STDERR_FILENO, "too big packetlen %d specified\n", tmp_packetlen);
+                    return (set_opts_args_failure(&opts_args));
+                }
+                traceroute->conf.packetlen = (uint32_t)tmp_packetlen;
+            }
+        }
+        else
+            return (set_opts_args_failure(&opts_args));
+    }
     free_opts_args(&opts_args);
     return (SUCCESS);
 }
