@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/26 15:25:59 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/19 12:37:21 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/19 14:21:06 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@
                                     NULL            \
                                 })
 # define ALLOWED_OPT_TAB_ARG    NULL
-# define ALLOWED_OPT_ASSIGN     "a"
+# define ALLOWED_OPT_ASSIGN     NULL
 # define ALLOWED_OPT_ASSIGN_TAB ((const char *[])   \
                                 {                   \
                                     M_OPT_STR,      \
