@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 14:57:34 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/19 14:59:32 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/19 15:53:52 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,6 +176,10 @@ uint8_t  set_opts_args(t_traceroute *traceroute, int argc, char **argv)
         else
             return (set_opts_args_failure(&opts_args));
     }
+    tmp_args_db = get_arg(&opts_args.args, POSITION(0));
+    if (resolve_target(traceroute, tmp_args_db->arg, tmp_args_db->argc) != FALSE)
+        return (set_opts_args_failure(&opts_args));
+    traceroute->opts = opts_args.all;
     free_opts_args(&opts_args);
     return (SUCCESS);
 }

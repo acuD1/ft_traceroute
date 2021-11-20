@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 13:19:29 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/18 14:50:15 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/19 15:05:31 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,28 +171,15 @@ int     main(int argc, char *argv[])
     if (set_opts_args(&traceroute, argc, argv) != SUCCESS)
         exit_routine(&traceroute, FAILURE);
 
-    // core.packetlen  = DEFAULT_PACKETLEN;
-    // core.hops       = DEFAULT_HOPS;
-    // core.probes     = DEFAULT_PROBES;
-    // core.dst_port   = DEFAULT_DST_PORT;
+    /* Check if ft_traceroute executed as root */
+    if (getuid())
+    {
+        dprintf(STDERR_FILENO, "ft_traceroute: socket: Operation not permitted\n");
+        exit_routine(&traceroute, FAILURE);
+    }
+    else
+        exec_traceroute(&traceroute);
 
-    // if (get_opts_args_handler(&core, argc, argv) != SUCCESS)
-    //     return (EXIT_FAILURE);
-
-    //     /* Check if ft_ping executed as root */
-    // if (getuid())
-    // {
-    //     dprintf(STDERR_FILENO, "ft_traceroute: socket: Operation not permitted\n");
-    //     exit_routine(&core, FAILURE);
-    // }
-
-    // if (init_core(&core) != SUCCESS)
-    //     exit_routine(&core, FAILURE);
-    // else
-    //     exec_ft_traceroute(&core);
-    // debug_core(&core);
-    // debug_opts_args(core.opts_args);
-    // free_core(&core);
     free_traceroute(&traceroute);
     return (EXIT_SUCCESS);
 }

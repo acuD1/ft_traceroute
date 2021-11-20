@@ -91,11 +91,14 @@ SRC                 += $(S_PATH)$(CORE)main.c
 SRC                 += $(S_PATH)$(CORE)memory.c
 SRC                 += $(S_PATH)$(CORE)init.c
 SRC                 += $(S_PATH)$(CORE)opts_args.c
+SRC                 += $(S_PATH)$(CORE)exec_traceroute.c
+SRC                 += $(S_PATH)$(CORE)resolve.c
 
 SRC                 += $(S_PATH)$(DISPLAY)usage.c
 SRC                 += $(S_PATH)$(DISPLAY)errors.c
 SRC                 += $(S_PATH)$(DISPLAY)version.c
 
+SRC                 += $(S_PATH)$(TOOLS)handlers.c
 
 # Headers
 

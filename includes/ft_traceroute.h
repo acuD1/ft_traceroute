@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/26 15:25:59 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/19 14:57:07 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/19 16:10:43 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,19 @@
 
 // #include <sys/types.h>
 // #include <sys/socket.h>
-// #include <netdb.h>
+# include <netdb.h>
+# include <netinet/in.h>
+# include <errno.h>
 // #include <netinet/ip.h>
 // #include <netinet/udp.h>
 // # include <netinet/ip_icmp.h>
-// #include <arpa/inet.h>
+#include <arpa/inet.h>
 // #include <sys/select.h>
+# include <string.h>
+# include <ifaddrs.h>
+# include <net/if.h>
+
+# define errno                  (*__errno_location ())
 
 /* GENERIC */
 # define STRINGIZER(arg)        #arg
@@ -69,7 +76,7 @@
 # define DEFAULT_PACKETLEN      60
 # define MIN_PACKETLEN          28
 # define MAX_PACKETLEN          65000
-// # define DEFAULT_HOPS           30
+# define DEFAULT_HOPS           30
 # define MIN_HOPS               1
 # define MAX_HOPS               255
 # define DEFAULT_PROBES         3
@@ -84,6 +91,11 @@ typedef struct                  s_conf
     uint32_t                    hops;
     uint32_t                    probes;
     uint32_t                    packetlen;
+    uint8_t                     mode;
+    uint8_t                     dns;
+    uint8_t                     diff_dns;
+    uint8_t                     local;
+    // char                        _PADDING(1);
 }                               t_conf;
 typedef struct                  s_traceroute
 {
@@ -92,8 +104,12 @@ typedef struct                  s_traceroute
     // uint32_t                    packetlen;
     // uint32_t                    probes;
     // int                         dst_port;
-    // struct sockaddr_storage     target_addr;
+    uint64_t                    opts;
+    char                        buff_ip[INET6_ADDRSTRLEN];
+    char                        buff_dns[NI_MAXHOST];
+    char                        buff_target[NI_MAXHOST];
     t_conf                       conf;
+    struct sockaddr_storage     target;
 }                               t_traceroute;
 
 void                            exit_routine(t_traceroute *traceroute, int8_t status);
@@ -103,6 +119,15 @@ void                            print_usage(void);
 void                            print_unallowed_opt(t_opts_args *opts_args);
 void                            free_traceroute(t_traceroute *traceroute);
 void                            print_version(void);
+void                            exec_traceroute(t_traceroute *traceroute);
+void                            getnameinfo_handler(t_traceroute *traceroute);
+void                            getnameinfo_error_handler(t_traceroute *traceroute, int status);
+char                            *inet_ntop_handler(t_traceroute *traceroute, uint32_t *addr);
+uint8_t                         resolve_target(t_traceroute *traceroute, char *target, int argc);
+void                            getaddrinfo_error_handler(char *target, int argc, int status);
+uint8_t                         inet_pton_handler(t_traceroute *traceroute, char *target);
+
+
 // void                            getaddrinfo_error_handler(t_core *core, int8_t status);
 // void                            free_core(t_core *core);
 // void                            print_unallowed_opt(t_opts_args *opts_args);
