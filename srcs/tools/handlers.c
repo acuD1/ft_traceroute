@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 15:32:23 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/20 11:41:55 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/21 20:02:34 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,4 +63,14 @@ uint8_t     inet_pton_handler(t_traceroute *traceroute, char *target)
     if (!inet_pton(traceroute->conf.mode, target, buff))
         return FALSE;
     return (TRUE);
+}
+
+void    gettimeofday_handler(t_traceroute *traceroute, void *time)
+{
+    if (gettimeofday(time, NULL) < 0)
+    {
+        dprintf(STDERR_FILENO, "ft_traceroute: gettimeofday(): %s\n",
+            strerror(errno));
+        exit_routine(traceroute, FAILURE);
+    }
 }

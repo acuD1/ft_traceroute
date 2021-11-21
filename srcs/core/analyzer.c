@@ -6,25 +6,80 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/21 15:43:15 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/21 19:16:32 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/21 20:07:22 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_traceroute.h"
 
-// static void    display_ttl(void *packet, ssize_t packet_len)
+// static uint8_t owned_packet_v4(t_traceroute *traceroute, void *buffer)
 // {
-//     static uint8_t ttl = 0;
-//     struct iphdr *ip_header = (struct iphdr *)packet;
+//     struct iphdr  *iphdr    = (struct iphdr *)(buffer);
+//     uint16_t        id      = htons(iphdr->id);
 
-//     (void)packet_len;
-
-//     if (ip_header->ttl != ttl)
-//     {
-//         ttl = ip_header->ttl;
-//         dprintf(STDOUT_FILENO, " %hhu  ", ttl);
-//     }
+//     return (id == 0 || (id >= DEFAULT_SRC_PORT && id <= (DEFAULT_SRC_PORT + traceroute->packet_sent) ? TRUE : FALSE));
 // }
+
+// static uint8_t owned_packet_v6(t_traceroute *traceroute, void *icmp_area)
+// {
+//     struct icmp6_hdr *response     = (struct icmp6_hdr *)(icmp_area);
+//     uint16_t          id            = htons(response->icmp6_id);
+
+//     return (id == 0 || id == traceroute->conf.pid ? TRUE : FALSE);
+// }
+
+// static uint8_t owned_packet_handler(t_traceroute *traceroute, void *buffer)
+// {
+//     if (traceroute->conf.mode == AF_INET)
+//         return (owned_packet_v4(traceroute, (char *)buffer + IPHDR_SIZE + ICMPHDR_SIZE));
+//     // else
+//     //     return (owned_packet_v6(traceroute, buffer));
+//     return (0);
+// }
+
+static uint16_t retrieve_port(void *buffer)
+{
+    struct udphdr  *udphdr    = (struct udphdr *)(buffer);
+
+    return (htons(udphdr->dest));
+}
+
+static int       find_port(void *current, void *to_find)
+{
+    t_packet_data   *tmp_current = current;
+    uint16_t        tmp_to_find = *(uint16_t *)to_find;
+
+    return (tmp_current->port == tmp_to_find ? TRUE : FALSE);
+}
+
+static t_packet_data *validate_packet(t_traceroute *traceroute, void *buffer)
+{
+    t_lst   *node   = NULL;
+    uint16_t port    = 0;
+
+    port = retrieve_port((char *)buffer + IPHDR_SIZE + ICMPHDR_SIZE + IPHDR_SIZE);
+    dprintf(STDERR_FILENO, "port: %d\n", port);
+    if (!(node = ft_lstfind(traceroute->packets, &port, (int (*)(void*, void*))find_port)))
+        return (NULL);
+    return ((t_packet_data *)node->content);
+}
+
+static t_packet_data   *process_packet(t_traceroute *traceroute, void *buffer, struct timeval *time_recv)
+{
+    t_packet_data   *packet_data = NULL;
+
+    // if (owned_packet_handler(traceroute, buffer) == TRUE)
+    // {
+        packet_data = validate_packet(traceroute, (char *)buffer + IPHDR_SIZE + ICMPHDR_SIZE);
+        if (packet_data)
+        {
+            dprintf(STDERR_FILENO, "??\n");
+            ft_memcpy(&packet_data->time_recv, time_recv, sizeof(struct timeval));
+        }
+
+    // }
+    return (packet_data);
+}
 
 void    trace_analyzer(t_traceroute *traceroute, t_loop_data *loop_data)
 {
@@ -36,6 +91,8 @@ void    trace_analyzer(t_traceroute *traceroute, t_loop_data *loop_data)
     ssize_t bytes_read = 0;
 
     struct timeval       timeout;
+    struct timeval       time_recv;
+
     timeout.tv_sec  = 5;
     timeout.tv_usec = 0;
 
@@ -43,7 +100,7 @@ void    trace_analyzer(t_traceroute *traceroute, t_loop_data *loop_data)
     struct          sockaddr_in recv;
     socklen_t len = sizeof(recv);
 
-    static uint8_t querie       = 0;
+    // static uint8_t querie       = 0;
     uint8_t processed    = 0;
     static uint8_t hops         = 0;
     // int8_t current_ttl  = 0;
@@ -56,12 +113,12 @@ void    trace_analyzer(t_traceroute *traceroute, t_loop_data *loop_data)
         FD_SET(traceroute->recv_sockfd, &rfds);
 
 
-        if (querie == traceroute->conf.n_queries)
-        {
-            hops++;
-            querie = 0;
-            dprintf(STDOUT_FILENO, "\n%s%hhu ", hops >= 10 ? "" : " ", hops);
-        }
+        // if (querie == traceroute->conf.n_queries)
+        // {
+        //     hops++;
+        //     querie = 0;
+        //     dprintf(STDOUT_FILENO, "\n%s%hhu ", hops >= 10 ? "" : " ", hops);
+        // }
         if ((fds = select(traceroute->recv_sockfd + 1, &rfds, NULL, NULL, &timeout)) == -1)
         {
             dprintf(STDERR_FILENO, "ft_traceroute: select(): %s\n", strerror(errno));
@@ -78,28 +135,22 @@ void    trace_analyzer(t_traceroute *traceroute, t_loop_data *loop_data)
                     printf("recvfrom(): ERROR: %s , errno %d\n", strerror(errno), errno);
                     exit_routine(traceroute, FAILURE);
                 }
-
-                // dprintf(STDERR_FILENO, "[DEBUG] bytes_read: %zd\n", bytes_read);
-                // print_bytes((int)bytes_read, buffer);
-                // char *icmp_payload = buffer + IPHDR_SIZE + ICMPHDR_SIZE;
-                // handler_ttl(buffer + IPHDR_SIZE + ICMPHDR_SIZE, bytes_read - IPHDR_SIZE + ICMPHDR_SIZE - 32);
-                // if (current_ttl != packet_ttl)
-                // {
-                //     current_ttl = packet_ttl;
-                //     dprintf(STDOUT_FILENO, "select()\n");
-                // }
-                // dprintf(STDOUT_FILENO, "#");
-                // dprintf(STDERR_FILENO, "[DEBUG] recvfrom() bytes_read: %zu\n", bytes_read);
-                // dprintf(STDERR_FILENO, "[DEBUG] recvfrom() recv.sin_addr.s_addr: %s\n", inet_ntoa(recv.sin_addr));
-                // dprintf(STDERR_FILENO, "[DEBUG] recvfrom() recv.sin_port: %d\n", recv.sin_port);
-                // dprintf(STDERR_FILENO, "[DEBUG] recvfrom() recv.sin_family: %d\n", recv.sin_family);
-                // dprintf(STDERR_FILENO, "[DEBUG] N |%zu|\n", recv_len++);
-
-                // display_ttl(buffer + IPHDR_SIZE + ICMPHDR_SIZE, bytes_read - IPHDR_SIZE - ICMPHDR_SIZE);
-                processed++;
-                querie++;
-                dprintf(STDOUT_FILENO, " #");
-
+                gettimeofday_handler(traceroute, &time_recv);
+                if ((packet_data = process_packet(traceroute, buffer, &time_recv)) != NULL)
+                {
+                    if (packet_data->ttl > hops)
+                    {
+                        hops = packet_data->ttl;
+                        dprintf(STDOUT_FILENO, "\n%s%hhu ", hops >= 10 ? "" : " ", hops);
+                    }
+                    processed++;
+                    // querie++;
+                }
+                else
+                {
+                    dprintf(STDOUT_FILENO, "[DEBUG] /!\\ INVALID PACKET\n");
+                    continue;
+                }
             }
             if (!loop_data || processed == traceroute->conf.n_queries)
             {
@@ -110,7 +161,7 @@ void    trace_analyzer(t_traceroute *traceroute, t_loop_data *loop_data)
         else
         {
             processed++;
-            querie++;
+            // querie++;
             dprintf(STDOUT_FILENO, " *");
             break;
         }

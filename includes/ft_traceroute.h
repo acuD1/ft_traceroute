@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/26 15:25:59 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/21 19:17:26 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/21 20:02:56 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # include <string.h>
 # include <ifaddrs.h>
 # include <net/if.h>
+# include <sys/time.h>
 
 # define errno                  (*__errno_location ())
 
@@ -136,6 +137,7 @@ typedef struct                  s_traceroute
     t_lst                       *packets;
     char                        *packet;
     uint64_t                    opts;
+    size_t                      packet_sent;
     int                         send_sockfd;
     int                         recv_sockfd;
     char                        buff_ip[INET6_ADDRSTRLEN];
@@ -166,6 +168,8 @@ void                            bind_socket(t_traceroute *traceroute);
 void                            print_init(t_traceroute *traceroute);
 void                            trace_analyzer(t_traceroute *traceroute, t_loop_data *loop_data);
 void                            send_packet_handler(t_traceroute *traceroute, t_packet_data *packet_data);
+void                            gettimeofday_handler(t_traceroute *traceroute, void *time);
+
 
 
 // void                            getaddrinfo_error_handler(t_core *core, int8_t status);
