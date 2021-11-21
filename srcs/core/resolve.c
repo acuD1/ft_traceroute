@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 15:04:42 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/20 11:40:08 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/21 12:30:52 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ uint8_t     resolve_target(t_traceroute *traceroute, char *target, int argc)
     hints.ai_flags      = AI_V4MAPPED | AI_ALL | AI_ADDRCONFIG;
     hints.ai_family     = AF_UNSPEC;
     hints.ai_socktype   = SOCK_RAW;
-    hints.ai_protocol   = IPPROTO_ICMP;
+    // hints.ai_protocol   = IPPROTO_ICMP;
 
     if ((status = getaddrinfo(target, NULL, &hints, &res)) != SUCCESS)
     {
@@ -98,8 +98,8 @@ uint8_t     resolve_target(t_traceroute *traceroute, char *target, int argc)
             traceroute->conf.mode |= AF_INET;
             ((struct sockaddr_in *)&traceroute->target)->sin_addr.s_addr
                 = ((struct sockaddr_in *)res->ai_addr)->sin_addr.s_addr;
-            ((struct sockaddr_in *)&traceroute->target)->sin_port
-                = htons(0);
+            // ((struct sockaddr_in *)&traceroute->target)->sin_port
+            //     = htons(0);
             ((struct sockaddr_in *)&traceroute->target)->sin_family
                 = (sa_family_t)res->ai_family;
             if (inet_pton_handler(traceroute, target) != TRUE)
@@ -146,9 +146,9 @@ uint8_t     resolve_target(t_traceroute *traceroute, char *target, int argc)
     //     traceroute->conf.local = TRUE;
     // }
 
-    dprintf(STDERR_FILENO, "[DEBUG] TARGET\t|%s|\n", traceroute->buff_target);
-    dprintf(STDERR_FILENO, "[DEBUG] DNS\t|%s|\n", traceroute->buff_dns);
-    dprintf(STDERR_FILENO, "[DEBUG] IP\t|%s|\n", traceroute->buff_ip);
+    // dprintf(STDERR_FILENO, "[DEBUG] TARGET\t|%s|\n", traceroute->buff_target);
+    // dprintf(STDERR_FILENO, "[DEBUG] DNS\t|%s|\n", traceroute->buff_dns);
+    // dprintf(STDERR_FILENO, "[DEBUG] IP\t|%s|\n", traceroute->buff_ip);
 
     return (SUCCESS);
 }

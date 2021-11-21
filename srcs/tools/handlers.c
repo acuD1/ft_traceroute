@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 15:32:23 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/20 11:35:03 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/20 11:41:55 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ char        *inet_ntop_handler(t_traceroute *traceroute, uint32_t *addr)
     ft_memset(&traceroute->buff_ip, 0, sizeof(traceroute->buff_ip));
     if (!(inet_ntop(traceroute->conf.mode, addr, traceroute->buff_ip, sizeof(traceroute->buff_ip))))
     {
-        dprintf(STDERR_FILENO, "ft_ping: inet_ntop(): %s\n", strerror(errno));
+        dprintf(STDERR_FILENO, "ft_traceroute: inet_ntop(): %s\n", strerror(errno));
         exit_routine(traceroute, FAILURE);
     }
 

@@ -93,12 +93,17 @@ SRC                 += $(S_PATH)$(CORE)init.c
 SRC                 += $(S_PATH)$(CORE)opts_args.c
 SRC                 += $(S_PATH)$(CORE)exec_traceroute.c
 SRC                 += $(S_PATH)$(CORE)resolve.c
+SRC                 += $(S_PATH)$(CORE)socket.c
+SRC                 += $(S_PATH)$(CORE)bind.c
+SRC                 += $(S_PATH)$(CORE)analyzer.c
 
 SRC                 += $(S_PATH)$(DISPLAY)usage.c
 SRC                 += $(S_PATH)$(DISPLAY)errors.c
 SRC                 += $(S_PATH)$(DISPLAY)version.c
+SRC                 += $(S_PATH)$(DISPLAY)default.c
 
 SRC                 += $(S_PATH)$(TOOLS)handlers.c
+SRC                 += $(S_PATH)$(TOOLS)debug.c
 
 # Headers
 

@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 14:57:34 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/19 15:53:52 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/21 14:31:14 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ uint8_t  set_opts_args(t_traceroute *traceroute, int argc, char **argv)
     {
         print_usage();
         exit_routine(traceroute, EXIT_SUCCESS);
+        tmp = NULL;
     }
 
     if (opts_args.all & VV_OPT)
@@ -79,7 +80,8 @@ uint8_t  set_opts_args(t_traceroute *traceroute, int argc, char **argv)
                         dprintf(STDERR_FILENO, "max hops cannot be more than 255\n");
                     return (set_opts_args_failure(&opts_args));
                 }
-                traceroute->conf.hops = (uint32_t)tmp_hops;
+                traceroute->conf.hops = (uint8_t)tmp_hops;
+                tmp = NULL;
             }
 
             else
@@ -100,7 +102,6 @@ uint8_t  set_opts_args(t_traceroute *traceroute, int argc, char **argv)
             return (set_opts_args_failure(&opts_args));
         }
     }
-
     if (opts_args.all & Q_OPT || (tmp = get_opt_set_db(&opts_args.opt_set, Q_OPT_STR)))
     {
         if (!tmp)
@@ -115,7 +116,9 @@ uint8_t  set_opts_args(t_traceroute *traceroute, int argc, char **argv)
                     dprintf(STDERR_FILENO, "no more than 10 probes per hop\n");
                     return (set_opts_args_failure(&opts_args));
                 }
-                traceroute->conf.probes = (uint32_t)tmp_probes;
+                dprintf(STDERR_FILENO, "TMP PROBES |%d|\n", tmp_probes);
+                traceroute->conf.probes = (uint8_t)tmp_probes;
+                tmp = NULL;
             }
             else
             {
@@ -170,7 +173,7 @@ uint8_t  set_opts_args(t_traceroute *traceroute, int argc, char **argv)
                     dprintf(STDERR_FILENO, "too big packetlen %d specified\n", tmp_packetlen);
                     return (set_opts_args_failure(&opts_args));
                 }
-                traceroute->conf.packetlen = (uint32_t)tmp_packetlen;
+                traceroute->conf.packetlen = (uint16_t)tmp_packetlen;
             }
         }
         else
