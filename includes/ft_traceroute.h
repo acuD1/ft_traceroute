@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/26 15:25:59 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/21 20:02:56 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/22 18:55:54 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@
 
 #include "libft.h"
 
-// #include <sys/types.h>
-// #include <sys/socket.h>
 # include <netdb.h>
 # include <netinet/in.h>
 # include <errno.h>
@@ -106,7 +104,6 @@ typedef struct                  s_conf
     uint8_t                     local;
     uint8_t                     start_ttl;
     uint8_t                     start_probe;
-    // char                        _PADDING(1);
 }                               t_conf;
 
 typedef struct                  s_packet_data
@@ -115,7 +112,6 @@ typedef struct                  s_packet_data
     uint16_t                    port;
     uint8_t                     ttl;
     uint8_t                     protocol;
-    // char                       _PADDING(4);
     struct timeval              time_sent;
     struct timeval              time_recv;
 }                               t_packet_data;
@@ -129,11 +125,6 @@ typedef struct                  s_loop_data
 
 typedef struct                  s_traceroute
 {
-    // t_opts_args                 *opts_args;
-    // char                        *target;
-    // uint32_t                    packetlen;
-    // uint32_t                    probes;
-    // int                         dst_port;
     t_lst                       *packets;
     char                        *packet;
     uint64_t                    opts;
@@ -170,18 +161,7 @@ void                            trace_analyzer(t_traceroute *traceroute, t_loop_
 void                            send_packet_handler(t_traceroute *traceroute, t_packet_data *packet_data);
 void                            gettimeofday_handler(t_traceroute *traceroute, void *time);
 
-
-
-// void                            getaddrinfo_error_handler(t_core *core, int8_t status);
-// void                            free_core(t_core *core);
-// void                            print_unallowed_opt(t_opts_args *opts_args);
-// void                            print_version(void);
-// void                            print_usage(void);
-// uint8_t                         get_opts_args_handler(t_core *core, int argc, char **argv);
-// uint8_t                         init_core(t_core *core);
-
 /* DEBUG */
-// void    debug_core(t_core *core);
-void    print_bytes(int bytes, void *msg);
+void                            print_bytes(int bytes, void *msg);
 
 #endif

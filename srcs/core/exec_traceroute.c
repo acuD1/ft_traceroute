@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 15:06:14 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/21 19:54:18 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/22 17:24:29 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ static uint8_t  trace_recursive_loop(t_traceroute *traceroute,
 
 void    exec_traceroute(t_traceroute *traceroute)
 {
-    t_packet_data   packet_data;
+    t_packet_data   packet_data;    
     t_loop_data     loop_data;
 
     if (!(traceroute->packet = ft_memalloc(traceroute->conf.packetlen)))

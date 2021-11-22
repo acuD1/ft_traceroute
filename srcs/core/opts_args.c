@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 14:57:34 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/21 14:31:14 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/22 18:53:52 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,6 @@ uint8_t  set_opts_args(t_traceroute *traceroute, int argc, char **argv)
                     dprintf(STDERR_FILENO, "no more than 10 probes per hop\n");
                     return (set_opts_args_failure(&opts_args));
                 }
-                dprintf(STDERR_FILENO, "TMP PROBES |%d|\n", tmp_probes);
                 traceroute->conf.probes = (uint8_t)tmp_probes;
                 tmp = NULL;
             }
