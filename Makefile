@@ -96,6 +96,8 @@ SRC                 += $(S_PATH)$(CORE)resolve.c
 SRC                 += $(S_PATH)$(CORE)socket.c
 SRC                 += $(S_PATH)$(CORE)bind.c
 SRC                 += $(S_PATH)$(CORE)analyzer.c
+SRC                 += $(S_PATH)$(CORE)send_ipv4.c
+SRC                 += $(S_PATH)$(CORE)process.c
 
 SRC                 += $(S_PATH)$(DISPLAY)usage.c
 SRC                 += $(S_PATH)$(DISPLAY)errors.c

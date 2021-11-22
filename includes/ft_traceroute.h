@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/26 15:25:59 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/22 18:55:54 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/22 21:36:49 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,8 +134,8 @@ typedef struct                  s_traceroute
     char                        buff_ip[INET6_ADDRSTRLEN];
     char                        buff_dns[NI_MAXHOST];
     char                        buff_target[NI_MAXHOST];
-    char                        _PADDING(4);
     t_conf                       conf;
+    char                        _PADDING(4);
     struct sockaddr_storage     target;
 }                               t_traceroute;
 
@@ -160,6 +160,8 @@ void                            print_init(t_traceroute *traceroute);
 void                            trace_analyzer(t_traceroute *traceroute, t_loop_data *loop_data);
 void                            send_packet_handler(t_traceroute *traceroute, t_packet_data *packet_data);
 void                            gettimeofday_handler(t_traceroute *traceroute, void *time);
+void                            send_udp_ipv4(t_traceroute *traceroute, t_packet_data *packet_data);
+t_packet_data                   *process_packet(t_traceroute *traceroute, void *buffer, struct timeval *time_recv);
 
 /* DEBUG */
 void                            print_bytes(int bytes, void *msg);
