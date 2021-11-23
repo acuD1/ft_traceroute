@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/26 15:25:59 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/22 21:36:49 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/23 21:32:25 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,13 @@ typedef struct                  s_loop_data
     uint8_t                     probe;
     uint8_t                     n_queries;
 }                               t_loop_data;
+
+// typedef struct                 s_analyzer_data
+// {
+//     uint8_t                    queries;
+//     uint8_t  hops        = 0;
+//     uint8_t  processed   = 0;
+// }                              t_analyzer_data;
 
 typedef struct                  s_traceroute
 {

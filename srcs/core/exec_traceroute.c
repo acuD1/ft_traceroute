@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 15:06:14 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/22 21:37:03 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/23 21:33:59 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ void    exec_traceroute(t_traceroute *traceroute)
 {
     t_packet_data   packet_data;
     t_loop_data     loop_data;
+    // t_analyzer_data analyzer_data;
 
     if (!(traceroute->packet = ft_memalloc(traceroute->conf.packetlen)))
         exit_routine(traceroute, FAILURE);

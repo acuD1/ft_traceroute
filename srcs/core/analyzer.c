@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/21 15:43:15 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/22 22:32:06 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/23 21:34:45 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,85 +20,73 @@ static uint8_t icmp_port_unreach(void *buffer)
     return (icmp_hdr->icmp_type == ICMP_UNREACH ? TRUE : FALSE);
 }
 
-// static void display_latency(t_packet_data *packet_data)
-// {
-//     struct timeval tmp_t_start  = *(struct timeval *)&packet_data->time_sent;
-//     struct timeval tmp_t_end    = *(struct timeval *)&packet_data->time_recv;
-//     double res                  = 0;
-//     double start;
-//     double end;
-
-//     start   = (double)tmp_t_start.tv_sec * 1000000.0 + (double)tmp_t_start.tv_usec;
-//     end     = (double)tmp_t_end.tv_sec * 1000000.0 + (double)tmp_t_end.tv_usec;
-
-//     res = (end - start) / 1000.0;
-//     if (res < 0.1)
-//         dprintf(STDOUT_FILENO, "  %.3f ms", res);
-//     else
-//         dprintf(STDOUT_FILENO, "  %.2f ms", res);
-// }
-
-
-static void display_stats(t_traceroute *traceroute, t_packet_data *packet_data, uint8_t processed, struct sockaddr_in *recv)
+static void display_latency(t_packet_data *packet_data)
 {
-    (void)packet_data;
-    (void)traceroute;
-    (void)processed;
-    static struct sockaddr_in   last_recv;
+    struct timeval tmp_t_start  = *(struct timeval *)&packet_data->time_sent;
+    struct timeval tmp_t_end    = *(struct timeval *)&packet_data->time_recv;
+    double res                  = 0;
+    double start;
+    double end;
+
+    start   = (double)tmp_t_start.tv_sec * 1000000.0 + (double)tmp_t_start.tv_usec;
+    end     = (double)tmp_t_end.tv_sec * 1000000.0 + (double)tmp_t_end.tv_usec;
+
+    res = (end - start) / 1000.0;
+    if (res < 0.1)
+        dprintf(STDOUT_FILENO, " %.3f ms", res);
+    else
+        dprintf(STDOUT_FILENO, " %.2f ms", res);
+}
+
+
+static void display_stats(t_traceroute *traceroute, t_packet_data *packet_data, struct sockaddr_in *recv)
+{
+    static uint8_t              n_prob              = 1;
     static uint8_t              last_ttl            = 1;
     static char                 last_ip[INET6_ADDRSTRLEN];
     char                        ip[INET6_ADDRSTRLEN];
-    // int                         status              = 0;
-    // char                        buff_dns[NI_MAXHOST];
-    // struct sockaddr_in          sin;
-    // char *str1 = NULL;
-    // char *str2 = NULL;
+    int                         status              = 0;
+    int                         diff                = 0;
+    char                        buff_dns[NI_MAXHOST];
+    struct sockaddr_in          sin;
 
+    if (last_ttl != packet_data->ttl)
+        n_prob = 1;
 
-    if (processed == 1 || last_ttl != packet_data->ttl) != 0)
+    ft_memcpy(&ip, inet_ntoa(recv->sin_addr), sizeof(ip));
+    if (last_ttl != packet_data->ttl || (diff = ft_strcmp(ip, last_ip)) != 0 )
     {
+        if (diff != 0 && last_ttl == packet_data->ttl)
+            dprintf(STDERR_FILENO, " ");
         last_ttl = packet_data->ttl;
-        ft_memcpy(&last_recv, recv, sizeof(struct sockaddr_in));
-        dprintf(STDOUT_FILENO, "CHANGE\n");
+        ft_memcpy(&last_ip, inet_ntoa(recv->sin_addr), sizeof(last_ip));
+        ft_memset(&sin, 0, sizeof(sin));
+        if ((status = (inet_pton(AF_INET, inet_ntoa(recv->sin_addr), &(sin.sin_addr)))))
+        {
+            sin.sin_family = AF_INET;
+            sin.sin_port = htons(0);
+            ft_memset(buff_dns, 0, NI_MAXHOST);
+            if ((status = getnameinfo((struct sockaddr *)&sin, sizeof(sin), buff_dns,
+                            sizeof(buff_dns), NULL, 0, NI_NUMERICSERV)) != 0)
+            {
+                if (status != EAI_NONAME)
+                    getnameinfo_error_handler(traceroute, status);
+            }
+            dprintf(STDOUT_FILENO, "%s", buff_dns);
+        }
+        else if (status == -1)
+        {
+            dprintf(STDERR_FILENO, "ft_traceroute: inet_pton(): %s'\n", strerror(errno));
+            exit_routine(traceroute, FAILURE);
+        }
+        dprintf(STDOUT_FILENO, " (%s)", inet_ntoa(recv->sin_addr));
     }
-
-    dprintf(STDOUT_FILENO, "%s\n", inet_ntoa(recv->sin_addr));
-        // str2 = inet_ntoa(recv->sin_addr);
-        // dprintf(STDOUT_FILENO, "STR2 %s", str2);
-        // dprintf(STDOUT_FILENO, "  STRCMP |%d|\n", strcmp(str1, str2));
-
-    // dprintf(STDOUT_FILENO, "%s\n", inet_ntoa(recv->sin_addr));
-    // if (last_recv != NULL)
-        // dprintf(STDOUT_FILENO, "\n --- TTL %hhu --- %s - %s |%d| \n", packet_data->ttl, inet_ntoa(recv->sin_addr), inet_ntoa(recv->sin_addr), ft_strcmp(inet_ntoa(recv->sin_addr), inet_ntoa(last_recv->sin_addr)));
-    // if (last_recv == NULL || (last_ttl != packet_data->ttl && ft_strcmp(inet_ntoa(recv->sin_addr), inet_ntoa(last_recv->sin_addr)) != 0))
-    // {
-    //     if ((status = (inet_pton(AF_INET, inet_ntoa(recv->sin_addr), &(sin.sin_addr)))))
-    //     {
-    //         sin.sin_family = AF_INET;
-    //         sin.sin_port = htons(0);
-    //         ft_memset(buff_dns, 0, NI_MAXHOST);
-    //         if ((status = getnameinfo((struct sockaddr *)&sin, sizeof(sin), buff_dns,
-    //                         sizeof(buff_dns), NULL, 0, NI_NUMERICSERV)) != 0)
-    //         {
-    //             if (status != EAI_NONAME)
-    //                 getnameinfo_error_handler(traceroute, status);
-    //         }
-    //         dprintf(STDOUT_FILENO, "%s", buff_dns);
-    //     }
-    //     else if (status == -1)
-    //     {
-    //         dprintf(STDERR_FILENO, "ft_traceroute: inet_pton(): %s'\n", strerror(errno));
-    //         exit_routine(traceroute, FAILURE);
-    //     }
-    //     dprintf(STDOUT_FILENO, " (%s)", inet_ntoa(recv->sin_addr));
-    // }
-
-    // last_recv = recv;
-    // last_ttl = packet_data->ttl;
-
-    // display_latency(packet_data);
-    if (processed % traceroute->conf.probes == 0)
+    if (last_ttl == packet_data->ttl)
+    {
         dprintf(STDOUT_FILENO, " ");
+        n_prob++;
+    }
+    display_latency(packet_data);
 }
 
 static uint8_t recvfrom_handler(t_traceroute *traceroute, uint8_t *processed, uint8_t *queries, uint8_t *hops)
@@ -130,15 +118,16 @@ static uint8_t recvfrom_handler(t_traceroute *traceroute, uint8_t *processed, ui
             *hops = packet_data->ttl;
             dprintf(STDOUT_FILENO, "%s%hhu ", *hops >= 10 ? "" : " ", *hops);
         }
-        display_stats(traceroute, packet_data, *processed, &recv);
-        if (icmp_port_unreach(buffer + IPHDR_SIZE) == TRUE
-            || (packet_data->ttl == traceroute->conf.hops && *processed % traceroute->conf.probes == 0))
+        display_stats(traceroute, packet_data, &recv);
+        if (icmp_port_unreach(buffer + IPHDR_SIZE) == TRUE)
+            traceroute->conf.hops = packet_data->ttl;
+        (*processed)++;
+        (*queries)++;
+        if (packet_data->ttl == traceroute->conf.hops && *processed % traceroute->conf.probes == 0)
         {
             dprintf(STDOUT_FILENO, "\n");
             exit_routine(traceroute, SUCCESS);
         }
-        (*processed)++;
-        (*queries)++;
         return (SUCCESS);
     }
     return (FAILURE);
