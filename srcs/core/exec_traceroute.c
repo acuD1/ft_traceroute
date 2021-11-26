@@ -103,7 +103,7 @@ void    exec_traceroute(t_traceroute *traceroute)
 
     loop_data.ttl        = traceroute->conf.start_ttl;
     loop_data.probe      = traceroute->conf.start_probe;
-    loop_data.queries  = traceroute->conf.queries;
+    loop_data.queries    = traceroute->conf.queries;
 
     packet_data.ttl      = loop_data.ttl;
     packet_data.probe    = loop_data.probe;

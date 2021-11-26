@@ -102,6 +102,43 @@ uint8_t  set_opts_args(t_traceroute *traceroute, int argc, char **argv)
             return (set_opts_args_failure(&opts_args));
         }
     }
+    if (opts_args.all & F_OPT || (tmp = get_opt_set_db(&opts_args.opt_set, F_OPT_STR)))
+    {
+        if (!tmp)
+            tmp = get_opt_set_db(&opts_args.opt_set, "f");
+        if (tmp->arg)
+        {
+            if (ft_isnum(tmp->arg))
+            {
+                int tmp_hop = ft_atoi(tmp->arg);
+                if (tmp_hop < MIN_HOPS || tmp_hop > MAX_HOPS_F)
+                {
+                    dprintf(STDERR_FILENO, "first hop out of range\n");
+                    return (set_opts_args_failure(&opts_args));
+                }
+                traceroute->conf.start_ttl = (uint8_t)tmp_hop;
+                tmp = NULL;
+            }
+
+            else
+            {
+                dprintf(STDERR_FILENO,
+                    "Cannot handle `%s%s' option with arg `%s' (argc %d)\n",
+                    opts_args.all & F_OPT ? "-" : "--", tmp->current,
+                    tmp->arg, tmp->argc);
+                return (set_opts_args_failure(&opts_args));
+            }
+        }
+        else
+        {
+            dprintf(STDERR_FILENO,
+                "Option `%s%s' (argc %d) requires an argument: `%s'\n",
+                opts_args.all & F_OPT ? "-" : "--", tmp->current, tmp->argc,
+                opts_args.all & F_OPT ? "-m max_ttl" : "--first=first_ttl");
+            return (set_opts_args_failure(&opts_args));
+        }
+    }
+
     if (opts_args.all & Q_OPT || (tmp = get_opt_set_db(&opts_args.opt_set, Q_OPT_STR)))
     {
         if (!tmp)

@@ -20,7 +20,7 @@ void    init_traceroute(t_traceroute *traceroute)
     traceroute->conf.packetlen      = DEFAULT_PACKETLEN;
     traceroute->conf.hops           = DEFAULT_HOPS;
     traceroute->conf.protocol       = DEFAULT_PROTOCOL;
-    traceroute->conf.queries      = DEFAULT_QUERIES;
+    traceroute->conf.queries        = DEFAULT_QUERIES;
     traceroute->conf.start_probe    = DEFAULT_START_PROBE;
     traceroute->conf.start_ttl      = DEFAULT_START_HOPS;
 }

@@ -47,19 +47,22 @@
 # define M_OPT                  1ULL << ('m' - 97)
 # define Q_OPT                  1ULL << ('q' - 97)
 # define H_OPT                  1ULL << ('h' - 97)
-# define A_OPT                  1ULL << ('a' - 97)
+# define F_OPT                  1ULL << ('f' - 97)
+# define N_OPT                  1ULL << ('n' - 97)
 # define H_OPT_STR              "help"
 # define V_OPT_STR              "version"
 # define M_OPT_STR              "max-hops"
 # define Q_OPT_STR              "queries"
-# define ALLOWED_OPT            "mVqh"
-# define ALLOWED_OPT_ARG        "mq"
+# define F_OPT_STR              "first"
+# define ALLOWED_OPT            "mVqhfn"
+# define ALLOWED_OPT_ARG        "mqf"
 # define ALLOWED_OPT_TAB        ((const char *[])   \
                                 {                   \
                                     H_OPT_STR,      \
                                     V_OPT_STR,      \
                                     M_OPT_STR,      \
                                     Q_OPT_STR,      \
+                                    F_OPT_STR,      \
                                     NULL            \
                                 })
 # define ALLOWED_OPT_TAB_ARG    NULL
@@ -68,6 +71,7 @@
                                 {                   \
                                     M_OPT_STR,      \
                                     Q_OPT_STR,      \
+                                    F_OPT_STR,      \
                                     NULL            \
                                 })
 
@@ -79,6 +83,7 @@
 # define DEFAULT_START_HOPS     1
 # define MIN_HOPS               1
 # define MAX_HOPS               255
+# define MAX_HOPS_F             30
 # define DEFAULT_PROBES         3
 # define DEFAULT_START_PROBE    1
 # define MIN_PROBES             1
@@ -93,6 +98,7 @@
 
 typedef struct                  s_conf
 {
+    uint16_t                    start_port;
     uint16_t                    packetlen;
     uint8_t                     protocol;
     uint8_t                     hops;
@@ -143,7 +149,7 @@ typedef struct                  s_traceroute
     char                        buff_dns[NI_MAXHOST];
     char                        buff_target[NI_MAXHOST];
     t_conf                       conf;
-    char                        _PADDING(4);
+    char                        _PADDING(2);
     struct sockaddr_storage     target;
 }                               t_traceroute;
 

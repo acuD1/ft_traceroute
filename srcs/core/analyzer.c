@@ -33,14 +33,15 @@ static void display_latency(t_packet_data *packet_data)
 
     res = (end - start) / 1000.0;
     if (res < 0.1)
-        dprintf(STDOUT_FILENO, " %.3f ms", res);
+        dprintf(STDOUT_FILENO, " %.4f ms", res);
     else
-        dprintf(STDOUT_FILENO, " %.2f ms", res);
+        dprintf(STDOUT_FILENO, " %.3f ms", res);
 }
 
 
-static uint8_t display_stats(t_traceroute *traceroute, t_packet_data *packet_data, struct sockaddr_in *recv)
+static uint8_t display_stats(t_traceroute *traceroute, t_packet_data *packet_data, struct sockaddr_in *recv, uint8_t processed)
 {
+    (void)traceroute;
     static uint8_t              n_prob              = 1;
     static uint8_t              last_ttl            = 1;
     static char                 last_ip[INET6_ADDRSTRLEN];
@@ -56,12 +57,12 @@ static uint8_t display_stats(t_traceroute *traceroute, t_packet_data *packet_dat
     ft_memcpy(&ip, inet_ntoa(recv->sin_addr), sizeof(ip));
     if (last_ttl != packet_data->ttl || (diff = ft_strcmp(ip, last_ip)) != 0 )
     {
-        if (diff != 0 && last_ttl == packet_data->ttl)
+        if (diff != 0 && last_ttl == packet_data->ttl && processed > 1)
             dprintf(STDERR_FILENO, " ");
         last_ttl = packet_data->ttl;
         ft_memcpy(&last_ip, inet_ntoa(recv->sin_addr), sizeof(last_ip));
         ft_memset(&sin, 0, sizeof(sin));
-        if ((status = (inet_pton(AF_INET, inet_ntoa(recv->sin_addr), &(sin.sin_addr)))))
+        if ((traceroute->opts & N_OPT) == 0 && (status = (inet_pton(AF_INET, inet_ntoa(recv->sin_addr), &(sin.sin_addr)))))
         {
             sin.sin_family = AF_INET;
             sin.sin_port = htons(0);
@@ -69,9 +70,20 @@ static uint8_t display_stats(t_traceroute *traceroute, t_packet_data *packet_dat
             if ((status = getnameinfo((struct sockaddr *)&sin, sizeof(sin), buff_dns,
                             sizeof(buff_dns), NULL, 0, NI_NUMERICSERV)) != 0)
             {
+                // dprintf(STDERR_FILENO, "??\n");
                 // if (status != EAI_NONAME)
                 //     getnameinfo_error_handler(traceroute, status);
-                return (FAILURE);
+                // return (FAILURE);
+                status = -1;
+                dprintf(STDOUT_FILENO, "%s", inet_ntoa(recv->sin_addr));
+                dprintf(STDOUT_FILENO, " (%s)", inet_ntoa(recv->sin_addr));
+                if (last_ttl == packet_data->ttl)
+                {
+                    dprintf(STDOUT_FILENO, " ");
+                    n_prob++;
+                }
+                display_latency(packet_data);
+                return (SUCCESS);
             }
             dprintf(STDOUT_FILENO, "%s", buff_dns);
         }
@@ -81,7 +93,10 @@ static uint8_t display_stats(t_traceroute *traceroute, t_packet_data *packet_dat
             // dprintf(STDERR_FILENO, "ft_traceroute: inet_pton(): %s'\n", strerror(errno));
             // exit_routine(traceroute, FAILURE);
         }
-        dprintf(STDOUT_FILENO, " (%s)", inet_ntoa(recv->sin_addr));
+        if (traceroute->opts & N_OPT)
+            dprintf(STDOUT_FILENO, "%s", inet_ntoa(recv->sin_addr));
+        else
+            dprintf(STDOUT_FILENO, " (%s)", inet_ntoa(recv->sin_addr));
     }
     if (last_ttl == packet_data->ttl)
     {
@@ -89,7 +104,26 @@ static uint8_t display_stats(t_traceroute *traceroute, t_packet_data *packet_dat
         n_prob++;
     }
     display_latency(packet_data);
-    return (SUCCESS)
+    return (SUCCESS);
+}
+
+static void    display_error(t_traceroute *traceroute, t_analyzer_data *analyzer_data,  uint8_t *processed, uint8_t *queries, uint8_t *hops)
+{
+    if (*processed % traceroute->conf.probes == 0)
+    {
+        (*hops)++;
+        dprintf(STDOUT_FILENO, "\n%s%hhu ",  *hops >= 10 ? "" : " ", *hops);
+    }
+    if (*processed % traceroute->conf.probes != 0 && analyzer_data->error == FALSE)
+        dprintf(STDOUT_FILENO, " ");
+    (*processed)++;
+    (*queries)++;
+    dprintf(STDOUT_FILENO,  "*");
+    if (*processed % traceroute->conf.probes != 0)
+    {
+        dprintf(STDOUT_FILENO, " ");
+    }
+    analyzer_data->error = TRUE;
 }
 
 static uint8_t recvfrom_handler(t_traceroute *traceroute, t_analyzer_data *analyzer_data, uint8_t *processed, uint8_t *queries, uint8_t *hops)
@@ -120,11 +154,11 @@ static uint8_t recvfrom_handler(t_traceroute *traceroute, t_analyzer_data *analy
             if (*hops != 0)
                 dprintf(STDOUT_FILENO, "\n");
             *hops = packet_data->ttl;
-            dprintf(STDOUT_FILENO, "%s%hhu ", *hops >= 10 ? "" : " ", *hops);
+            dprintf(STDOUT_FILENO, "%s%hhu  ", *hops >= 10 ? "" : " ", *hops);
         }
-        if (display_stats(traceroute, packet_data, &recv) != SUCCESS)
+        if (display_stats(traceroute, packet_data, &recv, *processed) != SUCCESS)
         {
-            display_error(traceroute, analyzer_data, &processed, &queries, &hops);
+            display_error(traceroute, analyzer_data, processed, queries, hops);
             return (FAILURE);
         }
         if (icmp_port_unreach(buffer + IPHDR_SIZE) == TRUE)
@@ -141,24 +175,6 @@ static uint8_t recvfrom_handler(t_traceroute *traceroute, t_analyzer_data *analy
     return (FAILURE);
 }
 
-static void    display_error(t_traceroute *traceroute, t_analyzer_data *analyzer_data,  uint8_t *processed, uint8_t *queries, uint8_t *hops)
-{
-    if (*processed % traceroute->conf.probes == 0)
-    {
-        (*hops)++;
-        dprintf(STDOUT_FILENO, "\n%s%hhu ",  *hops >= 10 ? "" : " ", *hops);
-    }
-    if (*processed % traceroute->conf.probes != 0 && analyzer_data->error == FALSE)
-        dprintf(STDOUT_FILENO, " ");
-    (*processed)++;
-    (*queries)++;
-    dprintf(STDOUT_FILENO,  "*");
-    if (*processed % traceroute->conf.probes != 0)
-    {
-        dprintf(STDOUT_FILENO, " ");
-    }
-    analyzer_data->error = TRUE;
-}
 
 void    trace_analyzer(
             t_traceroute *traceroute, t_loop_data *loop_data,
