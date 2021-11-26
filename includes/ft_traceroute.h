@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/26 15:25:59 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/23 21:32:25 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/23 21:59:53 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@
 # define MAX_PROBES             10
 # define DEFAULT_DST_PORT       33437
 # define DEFAULT_SRC_PORT       42000
-# define DEFAULT_N_QUERIES      1
+# define DEFAULT_QUERIES      1
 # define IPHDR_SIZE             20
 # define ICMPHDR_SIZE           8
 # define UDPHDR_SIZE            8
@@ -97,7 +97,7 @@ typedef struct                  s_conf
     uint8_t                     protocol;
     uint8_t                     hops;
     uint8_t                     probes;
-    uint8_t                     n_queries;
+    uint8_t                     queries;
     uint8_t                     mode;
     uint8_t                     dns;
     uint8_t                     diff_dns;
@@ -120,15 +120,16 @@ typedef struct                  s_loop_data
 {
     uint8_t                     ttl;
     uint8_t                     probe;
-    uint8_t                     n_queries;
+    uint8_t                     queries;
 }                               t_loop_data;
 
-// typedef struct                 s_analyzer_data
-// {
-//     uint8_t                    queries;
-//     uint8_t  hops        = 0;
-//     uint8_t  processed   = 0;
-// }                              t_analyzer_data;
+typedef struct                 s_analyzer_data
+{
+    uint8_t                    queries;
+    uint8_t                    hops;
+    uint8_t                    processed;
+    uint8_t                    error;
+}                              t_analyzer_data;
 
 typedef struct                  s_traceroute
 {
@@ -164,7 +165,7 @@ void                            setup_send_sockfd(t_traceroute *traceroute, int 
 void                            setup_recv_sockfd(t_traceroute *traceroute);
 void                            bind_socket(t_traceroute *traceroute);
 void                            print_init(t_traceroute *traceroute);
-void                            trace_analyzer(t_traceroute *traceroute, t_loop_data *loop_data);
+void                            trace_analyzer(t_traceroute *traceroute, t_loop_data *loop_data, t_analyzer_data *analyzer_data);
 void                            send_packet_handler(t_traceroute *traceroute, t_packet_data *packet_data);
 void                            gettimeofday_handler(t_traceroute *traceroute, void *time);
 void                            send_udp_ipv4(t_traceroute *traceroute, t_packet_data *packet_data);

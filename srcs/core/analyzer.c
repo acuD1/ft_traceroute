@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/21 15:43:15 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/23 21:34:45 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/23 22:15:47 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ static void display_latency(t_packet_data *packet_data)
 }
 
 
-static void display_stats(t_traceroute *traceroute, t_packet_data *packet_data, struct sockaddr_in *recv)
+static uint8_t display_stats(t_traceroute *traceroute, t_packet_data *packet_data, struct sockaddr_in *recv)
 {
     static uint8_t              n_prob              = 1;
     static uint8_t              last_ttl            = 1;
@@ -69,15 +69,17 @@ static void display_stats(t_traceroute *traceroute, t_packet_data *packet_data, 
             if ((status = getnameinfo((struct sockaddr *)&sin, sizeof(sin), buff_dns,
                             sizeof(buff_dns), NULL, 0, NI_NUMERICSERV)) != 0)
             {
-                if (status != EAI_NONAME)
-                    getnameinfo_error_handler(traceroute, status);
+                // if (status != EAI_NONAME)
+                //     getnameinfo_error_handler(traceroute, status);
+                return (FAILURE);
             }
             dprintf(STDOUT_FILENO, "%s", buff_dns);
         }
         else if (status == -1)
         {
-            dprintf(STDERR_FILENO, "ft_traceroute: inet_pton(): %s'\n", strerror(errno));
-            exit_routine(traceroute, FAILURE);
+            return (FAILURE);
+            // dprintf(STDERR_FILENO, "ft_traceroute: inet_pton(): %s'\n", strerror(errno));
+            // exit_routine(traceroute, FAILURE);
         }
         dprintf(STDOUT_FILENO, " (%s)", inet_ntoa(recv->sin_addr));
     }
@@ -87,10 +89,12 @@ static void display_stats(t_traceroute *traceroute, t_packet_data *packet_data, 
         n_prob++;
     }
     display_latency(packet_data);
+    return (SUCCESS)
 }
 
-static uint8_t recvfrom_handler(t_traceroute *traceroute, uint8_t *processed, uint8_t *queries, uint8_t *hops)
+static uint8_t recvfrom_handler(t_traceroute *traceroute, t_analyzer_data *analyzer_data, uint8_t *processed, uint8_t *queries, uint8_t *hops)
 {
+    (void)analyzer_data;
     t_packet_data       *packet_data    = NULL;
     ssize_t             bytes_read      = 0;
     char                buffer[520];
@@ -118,11 +122,15 @@ static uint8_t recvfrom_handler(t_traceroute *traceroute, uint8_t *processed, ui
             *hops = packet_data->ttl;
             dprintf(STDOUT_FILENO, "%s%hhu ", *hops >= 10 ? "" : " ", *hops);
         }
-        display_stats(traceroute, packet_data, &recv);
+        if (display_stats(traceroute, packet_data, &recv) != SUCCESS)
+        {
+            display_error(traceroute, analyzer_data, &processed, &queries, &hops);
+            return (FAILURE);
+        }
         if (icmp_port_unreach(buffer + IPHDR_SIZE) == TRUE)
             traceroute->conf.hops = packet_data->ttl;
         (*processed)++;
-        (*queries)++;
+        analyzer_data->queries++;
         if (packet_data->ttl == traceroute->conf.hops && *processed % traceroute->conf.probes == 0)
         {
             dprintf(STDOUT_FILENO, "\n");
@@ -133,19 +141,28 @@ static uint8_t recvfrom_handler(t_traceroute *traceroute, uint8_t *processed, ui
     return (FAILURE);
 }
 
-static void    display_error(t_traceroute *traceroute, uint8_t *processed, uint8_t *queries, uint8_t *hops)
+static void    display_error(t_traceroute *traceroute, t_analyzer_data *analyzer_data,  uint8_t *processed, uint8_t *queries, uint8_t *hops)
 {
     if (*processed % traceroute->conf.probes == 0)
     {
         (*hops)++;
         dprintf(STDOUT_FILENO, "\n%s%hhu ",  *hops >= 10 ? "" : " ", *hops);
     }
+    if (*processed % traceroute->conf.probes != 0 && analyzer_data->error == FALSE)
+        dprintf(STDOUT_FILENO, " ");
     (*processed)++;
     (*queries)++;
-    dprintf(STDOUT_FILENO, "* ");
+    dprintf(STDOUT_FILENO,  "*");
+    if (*processed % traceroute->conf.probes != 0)
+    {
+        dprintf(STDOUT_FILENO, " ");
+    }
+    analyzer_data->error = TRUE;
 }
 
-void    trace_analyzer(t_traceroute *traceroute, t_loop_data *loop_data)
+void    trace_analyzer(
+            t_traceroute *traceroute, t_loop_data *loop_data,
+            t_analyzer_data *analyzer_data)
 {
     (void)loop_data;
     fd_set          rfds;
@@ -160,6 +177,7 @@ void    trace_analyzer(t_traceroute *traceroute, t_loop_data *loop_data)
     timeout.tv_sec  = 5;
     timeout.tv_usec = 0;
 
+    analyzer_data->queries = 0;
     while (1)
     {
         FD_ZERO(&rfds);
@@ -174,16 +192,17 @@ void    trace_analyzer(t_traceroute *traceroute, t_loop_data *loop_data)
         {
             if (FD_ISSET(traceroute->recv_sockfd, &rfds))
             {
-                if ((recvfrom_handler(traceroute, &processed, &queries, &hops) != SUCCESS))
+                if ((recvfrom_handler(traceroute, analyzer_data, &processed, &queries, &hops) != SUCCESS))
                     continue;
+                analyzer_data->error = FALSE;
             }
-            if (!loop_data || queries == traceroute->conf.n_queries)
+            if (!loop_data || analyzer_data->queries == traceroute->conf.queries)
                 break;
             continue ;
         }
         else
         {
-            display_error(traceroute, &processed, &queries, &hops);
+            display_error(traceroute, analyzer_data, &processed, &queries, &hops);
             break;
         }
     }

@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/18 14:15:46 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/21 18:11:38 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/23 21:56:32 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void    init_traceroute(t_traceroute *traceroute)
     traceroute->conf.packetlen      = DEFAULT_PACKETLEN;
     traceroute->conf.hops           = DEFAULT_HOPS;
     traceroute->conf.protocol       = DEFAULT_PROTOCOL;
-    traceroute->conf.n_queries      = DEFAULT_N_QUERIES;
+    traceroute->conf.queries      = DEFAULT_QUERIES;
     traceroute->conf.start_probe    = DEFAULT_START_PROBE;
     traceroute->conf.start_ttl      = DEFAULT_START_HOPS;
 }

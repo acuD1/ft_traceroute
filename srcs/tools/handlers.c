@@ -6,7 +6,7 @@
 /*   By: arsciand <arsciand@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 15:32:23 by arsciand          #+#    #+#             */
-/*   Updated: 2021/11/22 20:13:48 by arsciand         ###   ########.fr       */
+/*   Updated: 2021/11/23 22:10:45 by arsciand         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ void        getnameinfo_handler(t_traceroute *traceroute)
         if ((status = getnameinfo((struct sockaddr *)&sa, sizeof(sa), traceroute->buff_dns,
                     sizeof(traceroute->buff_dns), NULL, 0, NI_NAMEREQD)) != 0)
         {
+            
             if (status != EAI_NONAME)
                 getnameinfo_error_handler(traceroute, status);
         }
