@@ -112,7 +112,7 @@ static void    display_error(t_traceroute *traceroute, t_analyzer_data *analyzer
     if (*processed % traceroute->conf.probes == 0)
     {
         (*hops)++;
-        dprintf(STDOUT_FILENO, "\n%s%hhu ",  *hops >= 10 ? "" : " ", *hops);
+        dprintf(STDOUT_FILENO, "\n%s%hhu  ",  *hops >= 10 ? "" : " ", *hops);
     }
     if (*processed % traceroute->conf.probes != 0 && analyzer_data->error == FALSE)
         dprintf(STDOUT_FILENO, " ");
